@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+<robot name="base">
+  <link name="planeLink">
+
+  <contact>
+		 	<lateral_friction value="1"/>
+			<stiffness value="300000"/>
+      <damping value="1000"/>
+  </contact>
+
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+       <mass value=".0"/>
+       <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+				<box size="2 2 0.01"/>
+      </geometry>
+       <material name="white">
+        <color rgba="1 1 1 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+	 	<box size="2 2 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+</robot>
+

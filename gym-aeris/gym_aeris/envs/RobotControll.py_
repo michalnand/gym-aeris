@@ -1,0 +1,63 @@
+import numpy
+
+class RobotControll():
+    def __init__(self, pb_client, robot_id, vp = 0.1, vi = 0.1, ap = 0.001, ai = 0.001, ad = 0.001):
+
+        self.pb_client  = pb_client
+        self.robot_id   = robot_id
+
+        self.vp = vp
+        self.vi = vi
+
+        self.ap = ap
+        self.ai = ai
+        self.ad = ad
+
+        self.reset()
+
+    def reset(self):
+        self.error_angle_sum    = 0.0
+        self.error_vx_sum       = 0.0
+        self.error_vy_sum       = 0.0
+
+    def controll_velocity(self, target_velocity):
+        vx, vy, w, yaw = self._get_state()
+
+        
+        #split into x, y part
+        target_vx = target_velocity*numpy.cos(yaw)
+        target_vy = target_velocity*numpy.sin(yaw)
+
+        #PI controll for velocity
+        error_vx = target_vx - vx
+        error_vy = target_vy - vy
+        
+        self.error_vx_sum = numpy.clip(self.error_vx_sum + error_vx, -1.0, 1.0)
+        self.error_vy_sum = numpy.clip(self.error_vy_sum + error_vy, -1.0, 1.0)
+
+        fx = self.vp*error_vx + self.vi*self.error_vx_sum
+        fy = self.vp*error_vy + self.vi*self.error_vy_sum
+
+
+        self.pb_client.applyExternalForce(self.robot_id, -1, [fx, fy, 0], (0, 0, 0), self.pb_client.LINK_FRAME)
+
+    def controll_angle(self, target_angle):
+        vx, vy, w, yaw = self._get_state()
+
+        
+        #PID controll for angle
+        error_angle = numpy.clip(target_angle - yaw, -numpy.pi, numpy.pi)
+        
+        self.error_angle_sum = numpy.clip(self.error_angle_sum + error_angle, -numpy.pi, numpy.pi)
+        
+        torque = self.ap*error_angle + self.ai*self.error_angle_sum + self.ad*w
+
+        print(">>> ", target_angle, yaw, torque, self.error_angle_sum)
+
+        self.pb_client.applyExternalTorque(self.robot_id, -1, [0, 0, torque], self.pb_client.LINK_FRAME)
+
+    def _get_state(self):
+        _, angle = self.pb_client.getBasePositionAndOrientation(self.robot_id)
+        velocity, angular_velocity  = self.pb_client.getBaseVelocity(self.robot_id)
+
+        return velocity[0], velocity[1], angular_velocity[2], angle[2]
