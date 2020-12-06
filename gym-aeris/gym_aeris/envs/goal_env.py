@@ -66,11 +66,11 @@ class GoalEnv(gym.Env, PybulletInterface):
     def reset(self):
         robots_count    = 1 
         targets_count   = 1
-        hazards_count   = 10
+        hazards_count   = 3
         obstacles_count = 1
-        fragile_count   = 0
+        fragile_count   = 2
         moving_count    = 0
-        buttons_count   = 0
+        buttons_count   = 2
         
         self.reset_interface(targets_count, robots_count, hazards_count, obstacles_count, fragile_count,  moving_count, buttons_count)
 

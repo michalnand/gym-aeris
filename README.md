@@ -4,6 +4,7 @@ robotics environments for reinforcement learning
 this environment is inspired by OpenAI safety-gym  https://openai.com/blog/safety-gym/ 
 which is open source, but running on closed source mujoco
 
+![animation](doc/env_image.png)
 
 # TODO
 
