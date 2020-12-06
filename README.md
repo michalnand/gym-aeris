@@ -32,10 +32,11 @@ robot have to navigate to target
 - for falling down, reward -1
 
 observation :
-tensor with shape (3, 32)
+tensor with shape (4, 32)
 - channel 0 : left robot wheel velocity
 - channel 1 : right robot wheel velocity
-- channel 2 : 32 points lidar data of target position
+- channel 2 : 32 points lidar data of obstacles position
+- channel 3 : 32 points lidar data of target position
 
 actions : continuous two motors controll, (-1, 1)
 
@@ -50,11 +51,12 @@ robot have to navigate to target, and avoid hazard areas
 - for hitting hazard, reward -1, episode ends
 
 observation :
-tensor with shape (4, 32)
+tensor with shape (5, 32)
 - channel 0 : left robot wheel velocity
 - channel 1 : right robot wheel velocity
-- channel 2 : 32 points lidar data of target position
-- channel 3 : 32 points lidar data of hazards position
+- channel 2 : 32 points lidar data of obstacles position
+- channel 3 : 32 points lidar data of target position
+- channel 4 : 32 points lidar data of hazards position
 
 actions : continuous two motors controll, (-1, 1)
 
@@ -71,12 +73,13 @@ robot have to navigate to target, and avoid hazard areas, and be careful to frag
 - for contact fragile, reward -0.1
 
 observation :
-tensor with shape (5, 32)
+tensor with shape (6, 32)
 - channel 0 : left robot wheel velocity
 - channel 1 : right robot wheel velocity
-- channel 2 : 32 points lidar data of target position
-- channel 3 : 32 points lidar data of hazards position
-- channel 4 : 32 points lidar data of fragiles position
+- channel 2 : 32 points lidar data of obstacles position
+- channel 3 : 32 points lidar data of target position
+- channel 4 : 32 points lidar data of hazards position
+- channel 5 : 32 points lidar data of fragiles position
 
 actions : continuous two motors controll, (-1, 1)
 
