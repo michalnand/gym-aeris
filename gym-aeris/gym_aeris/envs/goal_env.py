@@ -15,9 +15,10 @@ class GoalEnv(gym.Env, PybulletInterface):
 
     def __init__(self, render = True):
         gym.Env.__init__(self)
-        PybulletInterface.__init__(self)
+        PybulletInterface.__init__(self, render = render, lidar_points = 32)
 
-        self.render     = render
+        self.action_space       = spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=numpy.float32)
+        self.observation_space  = spaces.Box(shape=(3, 32), dtype=numpy.float32)
 
         
     def step(self, action):
@@ -28,17 +29,7 @@ class GoalEnv(gym.Env, PybulletInterface):
         #self._render_lidar(self.lidar[4])
 
 
-        items_r, items_yaw = self.get_items_relative_position(self.robots[0].pb_robot, self.targets)
-
-
-        if numpy.abs(items_yaw[0]) > 0.3:
-            if items_yaw[0] > 0.0:
-                self.robots[0].set_velocity(-5.0, 5.0)
-            else:
-                self.robots[0].set_velocity(5.0, -5.0)
-        else:
-            self.robots[0].set_velocity(50.0, 50.0)
- 
+        
         reward  = 0.0
         done    = False
 
@@ -59,28 +50,56 @@ class GoalEnv(gym.Env, PybulletInterface):
 
         self.pb_client.stepSimulation()
 
-        return 0, reward, done, None
+        return self._update_observation(), reward, done, None
 
         
     
     def reset(self):
         robots_count    = 1 
         targets_count   = 1
-        hazards_count   = 3
-        obstacles_count = 1
-        fragile_count   = 2
+        hazards_count   = 0
+        obstacles_count = 0
+        fragile_count   = 9
         moving_count    = 0
-        buttons_count   = 2
+        buttons_count   = 0
         
         self.reset_interface(targets_count, robots_count, hazards_count, obstacles_count, fragile_count,  moving_count, buttons_count)
 
-
+        return self._update_observation()
         
     def render(self):
         pass
 
     def close(self):
         print('close')
+
+
+    def _update_observation(self, robot_id, lidar_points):
+        lidar   = self.get_lidar(robot_id)
+
+        vl, vr  = self.robots[robot_id].get_wheel_velocity()
+
+        result    = numpy.zeros((4, lidar_points), dtype=numpy.float32)
+
+        result[0] = numpy.tanh(vl*numpy.ones(lidar_points)) #robot velocity, squeezed by tanh
+        result[1] = numpy.tanh(vr*numpy.ones(lidar_points))
+        result[2] = lidar[3]        #obstacles lidar
+        result[3] = lidar[1]        #target lidar
+
+        return result
+
+    def _dummy_follow(self):
+        items_r, items_yaw = self.get_items_relative_position(self.robots[0].pb_robot, self.targets)
+
+
+        if numpy.abs(items_yaw[0]) > 0.3:
+            if items_yaw[0] > 0.0:
+                self.robots[0].set_velocity(-5.0, 5.0)
+            else:
+                self.robots[0].set_velocity(5.0, -5.0)
+        else:
+            self.robots[0].set_velocity(50.0, 50.0)
+ 
 
     '''
     def render_lidar(self, lidar, size = 256):

@@ -10,8 +10,7 @@ import os
 import cv2
 
 class PybulletInterface():
-    def __init__(self, size_type = "small", render = True, lidar_points = 64):
-        self.size_type      = size_type
+    def __init__(self, render = True, lidar_points = 32):
         self.render         = render
         self.lidar_points   = lidar_points
         
