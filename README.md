@@ -8,9 +8,10 @@ which is open source, but running on closed source mujoco
 
 # TODO
 
-* **env is still not working**, just first committ and proof Iam doing something
+* ~~**env is still not working**, just first committ and proof Iam doing something~~
+* not tested yet - some lidar smoothing necessary
 * install into gym
-* observation and rewards finish
+* ~~observation and rewards finish~~
 * train some baselines
 * multirobot support
 
@@ -19,12 +20,13 @@ which is open source, but running on closed source mujoco
 
 dependences : numpy, pybullet, gym
 
-TODO
+TODO installing into gym
 
 
-# examples
+# environments
 
-## navigate to target
+## navigate to target **TargetNavigateEnv**
+
 
 robot have to navigate to target
 
@@ -43,7 +45,7 @@ actions : continuous two motors controll, (-1, 1)
 ![animation](doc/target_navigate.gif)
 
 
-## avoid hazards
+## avoid hazards, **AvoidHazardsEnv**
 
 robot have to navigate to target, and avoid hazard areas
 - for reaching target reward +1 obtained
@@ -64,7 +66,7 @@ actions : continuous two motors controll, (-1, 1)
 
 
 
-## avoid fragiles
+## avoid fragiles, **AvoidFragilesEnv**
 
 robot have to navigate to target, and avoid hazard areas, and be careful to fragile objects
 - for reaching target reward +1 obtained
@@ -86,3 +88,24 @@ actions : continuous two motors controll, (-1, 1)
 ![animation](doc/fragile_avoid.gif)
 
 
+
+## advanced food gathering, **FoodGatheringAdvancedEnv**
+
+robot have to gather foods, and avoid hazard areas, and be careful to fragile objects
+- for reaching food reward +1 obtained
+- for falling down, reward -1, episode ends
+- for hitting hazard, reward -1, episode ends
+- for contact fragile, reward -0.1
+
+observation :
+tensor with shape (6, 32)
+- channel 0 : left robot wheel velocity
+- channel 1 : right robot wheel velocity
+- channel 2 : 32 points lidar data of obstacles position
+- channel 3 : 32 points lidar data of hazards position
+- channel 4 : 32 points lidar data of fragiles position
+- channel 5 : 32 points lidar data of food position
+
+actions : continuous two motors controll, (-1, 1)
+
+![animation](doc/food_gathering_advanced.gif)

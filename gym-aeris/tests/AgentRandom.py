@@ -9,22 +9,24 @@ class AgentRandom:
 
         self.iterations = 0
 
-    def main(self):
+    def main(self, verbose=False):
         self.iterations+= 1
         action = 4.0*numpy.random.randn(self.actions_count)
 
         action = numpy.tanh(action)
 
-        self.state, reward, done, info = self.env.step(action)
+        state, reward, done, info = self.env.step(action)
 
-        print("state shape = ", state.shape)
-        print("reward      = ", reward)
-        print("done        = ", done)
-        print("state = \n", state)
-        print("\n\n\n")
+        if verbose:
+            print("action      = ", action)
+            print("state shape = ", state.shape)
+            print("reward      = ", reward)
+            print("done        = ", done)
+            print("state = \n", state)
+            print("\n\n\n")
         
         if done:
-            self.state = self.env.reset()
+            state = self.env.reset()
 
         return reward, done
     

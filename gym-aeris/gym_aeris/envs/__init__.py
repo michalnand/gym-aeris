@@ -1,3 +1,7 @@
-from gym_aeris.envs.basic_env import BasicEnv
-from gym_aeris.envs.goal_env import GoalEnv
+from gym_aeris.envs.target_navigate_env import TargetNavigateEnv
+from gym_aeris.envs.avoid_hazards_env   import AvoidHazardsEnv
+from gym_aeris.envs.avoid_fragiles_env  import AvoidFragilesEnv
+
+from gym_aeris.envs.food_gathering_env              import FoodGatheringEnv
+from gym_aeris.envs.food_gathering_advanced_env     import FoodGatheringAdvancedEnv
 

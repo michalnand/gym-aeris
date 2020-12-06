@@ -8,27 +8,28 @@ from .PybulletInterface import *
 import numpy
 import os
 
-#import cv2
 
-class GoalEnv(gym.Env, PybulletInterface):
+class TargetNavigateEnv(gym.Env, PybulletInterface):
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, render = True):
+    def __init__(self, render = False):
         gym.Env.__init__(self)
-        PybulletInterface.__init__(self, render = render, lidar_points = 32)
+
+        self.lidar_points = 32
+        PybulletInterface.__init__(self, render = render, lidar_points = self.lidar_points)
 
         self.action_space       = spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=numpy.float32)
-        self.observation_space  = spaces.Box(shape=(3, 32), dtype=numpy.float32)
+        self.observation_space  = spaces.Box(low=-1.0, high=1.0, shape=(4, self.lidar_points), dtype=numpy.float32)
 
         
     def step(self, action):
 
         self.step_interface()
         
+        vl = 50.0*numpy.clip(action[0], -1.0, 1.0)
+        vr = 50.0*numpy.clip(action[1], -1.0, 1.0)
 
-        #self._render_lidar(self.lidar[4])
-
-
+        self.robots[0].set_velocity(vl, vr)
         
         reward  = 0.0
         done    = False
@@ -36,21 +37,16 @@ class GoalEnv(gym.Env, PybulletInterface):
         if self.on_target(0, 0):
             reward = 1.0
             done   = True 
-        elif self.on_fragile(0):
-            reward = -0.1
-        elif self.on_hazard(0):
-            reward = -1.0
-            done   = True
         elif self.out_board(0):
             reward = -1.0
             done   = True
-
-        if reward != 0:
-            print(self.steps, reward)
+        elif self.steps > 2000:
+            reward = -1.0
+            done   = True
 
         self.pb_client.stepSimulation()
 
-        return self._update_observation(), reward, done, None
+        return self._update_observation(robot_id=0, lidar_points=self.lidar_points), reward, done, None
 
         
     
@@ -58,21 +54,20 @@ class GoalEnv(gym.Env, PybulletInterface):
         robots_count    = 1 
         targets_count   = 1
         hazards_count   = 0
-        obstacles_count = 0
-        fragile_count   = 9
+        obstacles_count = 1
+        fragile_count   = 0
         moving_count    = 0
-        buttons_count   = 0
+        foods_count     = 0
         
-        self.reset_interface(targets_count, robots_count, hazards_count, obstacles_count, fragile_count,  moving_count, buttons_count)
+        self.reset_interface(targets_count, robots_count, hazards_count, obstacles_count, fragile_count,  moving_count, foods_count  )
 
-        return self._update_observation()
+        return self._update_observation(robot_id=0, lidar_points=self.lidar_points)
         
     def render(self):
         pass
 
     def close(self):
-        print('close')
-
+        pass
 
     def _update_observation(self, robot_id, lidar_points):
         lidar   = self.get_lidar(robot_id)
@@ -81,8 +76,8 @@ class GoalEnv(gym.Env, PybulletInterface):
 
         result    = numpy.zeros((4, lidar_points), dtype=numpy.float32)
 
-        result[0] = numpy.tanh(vl*numpy.ones(lidar_points)) #robot velocity, squeezed by tanh
-        result[1] = numpy.tanh(vr*numpy.ones(lidar_points))
+        result[0] = numpy.tanh(vl*numpy.ones(lidar_points)/50.0) #robot velocity, squeezed by tanh
+        result[1] = numpy.tanh(vr*numpy.ones(lidar_points)/50.0)
         result[2] = lidar[3]        #obstacles lidar
         result[3] = lidar[1]        #target lidar
 

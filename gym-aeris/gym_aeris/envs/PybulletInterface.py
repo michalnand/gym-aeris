@@ -23,7 +23,7 @@ class PybulletInterface():
         #self.texture_plane      = self.pb_client.loadTexture(self.path_data + "plane.png")
     
     
-    def reset_interface(self, targets_count = 1, robots_count = 1, hazards_count = 0, obstacles_count = 0, fragiles_count = 0, movings_count = 0, buttons_count = 0):
+    def reset_interface(self, targets_count = 1, robots_count = 1, hazards_count = 0, obstacles_count = 0, fragiles_count = 0, movings_count = 0, foods_count = 0):
         self.path       = os.path.dirname(os.path.abspath(__file__))
         self.pb_client.resetSimulation()
 
@@ -39,11 +39,11 @@ class PybulletInterface():
         self.obstacles  = []
         self.fragiles   = []
         self.movings    = []
-        self.buttons    = []
+        self.foods      = []
 
         self.robots_controll = []
 
-        self.positions = self.random_positions(targets_count + robots_count + hazards_count + obstacles_count + fragiles_count + movings_count + buttons_count)
+        self.positions = self.random_positions(targets_count + robots_count + hazards_count + obstacles_count + fragiles_count + movings_count + foods_count)
 
 
         idx = 0
@@ -111,13 +111,13 @@ class PybulletInterface():
 
             idx+= 1
     
-        for i in range(buttons_count):
+        for i in range(foods_count):
             x = self.positions[idx][0]
             y = self.positions[idx][1]
             yaw = numpy.random.rand()*2.0*numpy.pi
             orientation = self.pb_client.getQuaternionFromEuler([0, 0, yaw])
             
-            self.buttons.append(self.pb_client.loadURDF(self.path_data + "button.urdf", [x, y, 0.0], orientation))
+            self.foods.append(self.pb_client.loadURDF(self.path_data + "food.urdf", [x, y, 0.06], orientation))
 
             idx+= 1
 
@@ -185,6 +185,20 @@ class PybulletInterface():
                 return True
 
         return False
+
+    def on_food(self, robot_id):
+        robot_position, robot_angle   = self.robots[robot_id].get_position_and_orientation()
+
+        for i in range(len(self.foods)):
+            target_position, target_angle = self.pb_client.getBasePositionAndOrientation(self.foods[i])
+
+            dif      = numpy.array(target_position) - numpy.array(robot_position)
+            distance = (numpy.sum(dif**2))**0.5
+
+            if distance < 0.15:
+                return i
+
+        return -1
 
     def out_board(self, robot_id):
         robot_position, _   = self.robots[robot_id].get_position_and_orientation()
@@ -261,8 +275,8 @@ class PybulletInterface():
         if len(self.movings) > 0:
             result[5]    = self._lidar_process(self.robots[robot_id].pb_robot, self.movings)
 
-        if len(self.buttons) > 0:
-            result[6]    = self._lidar_process(self.robots[robot_id].pb_robot, self.buttons)
+        if len(self.foods) > 0:
+            result[6]    = self._lidar_process(self.robots[robot_id].pb_robot, self.foods)
 
         return result
 
