@@ -7,7 +7,10 @@ from .RobotBasic import *
 
 import numpy
 import os
+
+
 import cv2
+from PIL import Image, ImageDraw
 
 class PybulletInterface():
     def __init__(self, render = True, lidar_points = 32):
@@ -300,11 +303,31 @@ class PybulletInterface():
 
         return items_r, items_yaw - robot_yaw
 
+    def get_items_bounding_box(self, items):
+        result = numpy.zeros((len(items), 2, 3))
+        
+        for i in range(len(items)):
+            v = self.pb_client.getAABB(items[i])
+            
+            result[i][0] = numpy.array(v[0])
+            result[i][1] = numpy.array(v[1])
+        
+        return result
 
     def _lidar_process(self, robot, items):
         
-        items_r, items_yaw = self.get_items_relative_position(robot, items)
-     
+        robot_center, _ = self.pb_client.getBasePositionAndOrientation(robot)
+
+        bb               = self.get_items_bounding_box(items)
+        
+        robot_center = numpy.array(robot_center)
+        items_r, items_yaw = self._get_scan_lines(robot_center, bb)
+
+        '''
+        if self.steps%150 == 0:
+            self._draw_scan_lines(robot_center, items_r, items_yaw)
+        '''
+
         distance = numpy.tanh(items_r)
         idx      = numpy.floor(self.lidar_points*items_yaw/(2.0*numpy.pi)).astype(int)%self.lidar_points
 
@@ -315,7 +338,22 @@ class PybulletInterface():
         result[result > 9] = 0.0
 
         return result
+       
+        '''
+        items_r, items_yaw = self.get_items_relative_position(robot, items)
 
+        distance = numpy.tanh(items_r)
+        idx      = numpy.floor(self.lidar_points*items_yaw/(2.0*numpy.pi)).astype(int)%self.lidar_points
+
+        result   = 10*numpy.ones(self.lidar_points)
+        for i in range(len(items)):
+            result[idx[i]] = min(distance[i], result[idx[i]])
+
+        result[result > 9] = 0.0
+
+        return result
+        '''
+   
 
     def _polar_position(self, position):
         position = numpy.array(position)
@@ -350,4 +388,90 @@ class PybulletInterface():
             self.pb_client.applyExternalForce(objectUniqueId=items[i], linkIndex=-1, forceObj=[fx, fy, 0], posObj=position, flags=self.pb_client.WORLD_FRAME)
 
 
+    def _get_scan_lines(self, center_position, bounding_boxes, interpolation_steps = 10):
+        items_count         = bounding_boxes.shape[0]
+        center              = center_position.reshape(1, 1, 3).repeat(2, axis=1).repeat(items_count, axis=0)
+        relative_position   = bounding_boxes - center_position
+        
+        #remove z-axis
+        relative_position   = numpy.delete(relative_position, 2, axis=2)
 
+        #vector length
+        r = ((relative_position**2).sum(2))**0.5
+
+        #angle
+        relative_position   = relative_position.reshape(items_count*2, 2).transpose()
+        yaw = numpy.arctan2(relative_position[1], relative_position[0])
+
+        yaw   = yaw.reshape(items_count, 2)
+
+        r   = r.transpose()
+        yaw = yaw.transpose()
+
+        r_interpolated   = numpy.zeros((r.shape[0]*interpolation_steps, r.shape[1]))
+        yaw_interpolated = numpy.zeros((yaw.shape[0]*interpolation_steps, yaw.shape[1]))
+
+      
+        r_start = r[0]
+        r_end   = r[1]
+        for i in range(interpolation_steps):
+            w = i/interpolation_steps
+            r_interpolated[i] = (1.0 - w)*r_start + w*r_end
+
+        yaw_start = yaw[0]
+        yaw_end   = yaw[1]
+        for i in range(interpolation_steps):
+            w = i/interpolation_steps
+            yaw_interpolated[i] = (1.0 - w)*yaw_start + w*yaw_end
+
+
+        r_interpolated      = r_interpolated.transpose().reshape(2*interpolation_steps*items_count)
+        yaw_interpolated    = yaw_interpolated.transpose().reshape(2*interpolation_steps*items_count)
+
+
+        return r_interpolated, yaw_interpolated
+
+    def _draw_scan_lines(self, origin, r, yaw, color = [1, 0, 0]):
+        
+        origin[2] = 0.02
+        count = r.shape[0]
+        for i in range(count):
+            r_      = r[i]
+            yaw_    = yaw[i]
+
+            f = [origin[0], origin[1], origin[2]]
+            t = [origin[0] + r_*numpy.cos(yaw_), origin[1] + r_*numpy.sin(yaw_), origin[2]]
+            self.pb_client.addUserDebugLine(f,t, color)
+
+    
+    def render_lidar(self, lidar, size = 256):
+        print("render_lidar")
+        image = Image.new('RGB', (size, size))
+
+        radius  = (256//2) - 10
+        center  = size//2
+        draw    = ImageDraw.Draw(image)
+
+        self._draw_circle(draw, 0 + center, 0 + center, radius, color=(10, 10, 10))
+
+        count = len(lidar)
+
+        for i in range(count):
+            phi = 2.0*numpy.pi*i*1.0/count + 1.5*numpy.pi
+            
+            if lidar[i] > 0.0:
+                distance = lidar[i]*radius
+
+                x = center + distance*numpy.cos(phi)
+                y = center + distance*numpy.sin(phi)
+
+                self._draw_circle(draw, int(x), int(y), radius*1.0/count + 2, color=(100, 10, 10))
+
+        
+        rgb = cv2.cvtColor(numpy.array(image),cv2.COLOR_BGR2RGB)
+
+        cv2.imshow("cv window", rgb)  
+        cv2.waitKey(1)
+    
+    def _draw_circle(self, draw, x, y, r, color):
+        draw.ellipse((x - r, y - r, x + r, y + r), fill = color, outline =color)

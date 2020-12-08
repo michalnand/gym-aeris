@@ -15,11 +15,11 @@ class FoodGatheringAdvancedEnv(gym.Env, PybulletInterface):
     def __init__(self, render = False):
         gym.Env.__init__(self)
 
-        self.lidar_points = 32
+        self.lidar_points = 128
         PybulletInterface.__init__(self, render = render, lidar_points = self.lidar_points)
 
         self.action_space       = spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=numpy.float32)
-        self.observation_space  = spaces.Box(low=-1.0, high=1.0, shape=(5, self.lidar_points), dtype=numpy.float32)
+        self.observation_space  = spaces.Box(low=-1.0, high=1.0, shape=(6, self.lidar_points), dtype=numpy.float32)
 
         
     def step(self, action):
@@ -33,7 +33,7 @@ class FoodGatheringAdvancedEnv(gym.Env, PybulletInterface):
         self.robots[0].set_velocity(vl, vr)
         '''
         
-        
+
         self._dummy_follow()
 
         
@@ -90,15 +90,17 @@ class FoodGatheringAdvancedEnv(gym.Env, PybulletInterface):
 
         vl, vr  = self.robots[robot_id].get_wheel_velocity()
 
-        result    = numpy.zeros((4, lidar_points), dtype=numpy.float32)
+        result    = numpy.zeros((6, lidar_points), dtype=numpy.float32)
 
         result[0] = numpy.tanh(vl*numpy.ones(lidar_points)/50.0) #robot velocity, squeezed by tanh
         result[1] = numpy.tanh(vr*numpy.ones(lidar_points)/50.0)
         result[2] = lidar[3]        #obstacles lidar
-        result[2] = lidar[2]        #hazards lidar
-        result[2] = lidar[4]        #fragiles lidar
-        result[3] = lidar[6]        #food lidar
+        result[3] = lidar[2]        #hazards lidar
+        result[4] = lidar[4]        #fragiles lidar
+        result[5] = lidar[6]        #food lidar
       
+        self.render_lidar(lidar[6])
+
  
         return result
 

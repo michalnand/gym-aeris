@@ -6,6 +6,10 @@ which is open source, but running on closed source mujoco
 
 ![animation](doc/env_image.png)
 
+simulated lidar scan
+
+![animation](doc/lidar_scan.gif)
+
 # TODO
 
 * ~~**env is still not working**, just first committ and proof Iam doing something~~
