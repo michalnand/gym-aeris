@@ -281,6 +281,7 @@ class PybulletInterface():
         if len(self.foods) > 0:
             result[6]    = self._lidar_process(self.robots[robot_id].pb_robot, self.foods)
 
+
         return result
 
     def get_items_relative_position(self, robot, items):
@@ -315,24 +316,27 @@ class PybulletInterface():
         return result
 
     def _lidar_process(self, robot, items):
-        
-        robot_center, _ = self.pb_client.getBasePositionAndOrientation(robot)
+
+        robot_position, orientation = self.pb_client.getBasePositionAndOrientation(robot)
+        robot_angle = self.pb_client.getEulerFromQuaternion(orientation)
 
         bb               = self.get_items_bounding_box(items)
         
-        robot_center = numpy.array(robot_center)
-        items_r, items_yaw = self._get_scan_lines(robot_center, bb)
+        robot_position = numpy.array(robot_position)
+        items_r, items_yaw = self._get_scan_lines(robot_position, bb)
+
+        items_yaw = items_yaw - robot_angle[2]
 
         '''
         if self.steps%150 == 0:
-            self._draw_scan_lines(robot_center, items_r, items_yaw)
+            self._draw_scan_lines(robot_position, items_r, items_yaw)
         '''
 
         distance = numpy.tanh(items_r)
-        idx      = numpy.floor(self.lidar_points*items_yaw/(2.0*numpy.pi)).astype(int)%self.lidar_points
+        idx      = numpy.floor(self.lidar_points*items_yaw/numpy.pi).astype(int)%self.lidar_points
 
         result   = 10*numpy.ones(self.lidar_points)
-        for i in range(len(items)):
+        for i in range(len(items_r)):
             result[idx[i]] = min(distance[i], result[idx[i]])
 
         result[result > 9] = 0.0
@@ -445,7 +449,6 @@ class PybulletInterface():
 
     
     def render_lidar(self, lidar, size = 256):
-        print("render_lidar")
         image = Image.new('RGB', (size, size))
 
         radius  = (256//2) - 10

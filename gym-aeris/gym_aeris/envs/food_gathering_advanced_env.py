@@ -15,7 +15,7 @@ class FoodGatheringAdvancedEnv(gym.Env, PybulletInterface):
     def __init__(self, render = False):
         gym.Env.__init__(self)
 
-        self.lidar_points = 128
+        self.lidar_points = 32
         PybulletInterface.__init__(self, render = render, lidar_points = self.lidar_points)
 
         self.action_space       = spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=numpy.float32)
@@ -116,38 +116,3 @@ class FoodGatheringAdvancedEnv(gym.Env, PybulletInterface):
         else:
             self.robots[0].set_velocity(50.0, 50.0)
  
-
-    '''
-    def render_lidar(self, lidar, size = 256):
-        image = Image.new('RGB', (size, size))
-
-        radius  = (256//2) - 10
-        center  = size//2
-        draw    = ImageDraw.Draw(image)
-
-        self._draw_circle(draw, 0 + center, 0 + center, radius, color=(10, 10, 10))
-
-        count = len(lidar)
-
-        for i in range(count):
-            phi = 2.0*numpy.pi*i*1.0/count + 1.5*numpy.pi
-            
-            if lidar[i] > 0.0:
-                distance = lidar[i]*radius
-
-                x = center + distance*numpy.cos(phi)
-                y = center + distance*numpy.sin(phi)
-
-                self._draw_circle(draw, int(x), int(y), radius*1.0/count + 2, color=(100, 10, 10))
-
-        
-        rgb = cv2.cvtColor(numpy.array(image),cv2.COLOR_BGR2RGB)
-
-
-
-        cv2.imshow("cv window", rgb)  
-        cv2.waitKey(1)
-    
-    def _draw_circle(self, draw, x, y, r, color):
-        draw.ellipse((x - r, y - r, x + r, y + r), fill = color, outline =color)
-    '''
