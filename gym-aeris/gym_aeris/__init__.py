@@ -1,11 +1,26 @@
 from gym.envs.registration import register
 
 register(
-    id='basic-v0',
-    entry_point='gym_aeris.envs:BasicEnv',
+    id='TargetnNavigate-v0',
+    entry_point='gym_aeris.envs:TargetNavigateEnv'
 )
 
 register(
-    id='goal-v0',
-    entry_point='gym_aeris.envs:GoalEnv',
+    id='AvoidHazards-v0',
+    entry_point='gym_aeris.envs:AvoidHazardsEnv'
+)
+
+register(
+    id='AvoidFragiles-v0',
+    entry_point='gym_aeris.envs:AvoidFragilesEnv'
+)
+
+register(
+    id='FoodGathering-v0',
+    entry_point='gym_aeris.envs:FoodGatheringEnv'
+) 
+
+register(
+    id='FoodGatheringAdvanced-v0',
+    entry_point='gym_aeris.envs:FoodGatheringAdvancedEnv'
 )

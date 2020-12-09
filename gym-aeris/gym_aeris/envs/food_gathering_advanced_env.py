@@ -26,15 +26,12 @@ class FoodGatheringAdvancedEnv(gym.Env, PybulletInterface):
 
         self.step_interface()
     
-        '''
         vl = 50.0*numpy.clip(action[0], -1.0, 1.0)
         vr = 50.0*numpy.clip(action[1], -1.0, 1.0)
 
-        self.robots[0].set_velocity(vl, vr)
-        '''
-        
+        self.robots[0].set_velocity(vl, vr)        
 
-        self._dummy_follow()
+        #self._dummy_follow()
 
         
         reward  = 0.0
@@ -99,7 +96,7 @@ class FoodGatheringAdvancedEnv(gym.Env, PybulletInterface):
         result[4] = lidar[4]        #fragiles lidar
         result[5] = lidar[6]        #food lidar
       
-        self.render_lidar(lidar[6])
+        #self.render_lidar(lidar)
 
  
         return result

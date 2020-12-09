@@ -131,7 +131,8 @@ class PybulletInterface():
 
 
     def step_interface(self):
-        self._step_movings(self.movings)
+
+        #self._step_movings(self.movings)
         self.lidar = self.get_lidar(0)
 
         self.steps+=1
@@ -447,7 +448,7 @@ class PybulletInterface():
             t = [origin[0] + r_*numpy.cos(yaw_), origin[1] + r_*numpy.sin(yaw_), origin[2]]
             self.pb_client.addUserDebugLine(f,t, color)
 
-    
+
     def render_lidar(self, lidar, size = 256):
         image = Image.new('RGB', (size, size))
 
@@ -457,18 +458,26 @@ class PybulletInterface():
 
         self._draw_circle(draw, 0 + center, 0 + center, radius, color=(10, 10, 10))
 
-        count = len(lidar)
+        items_types = lidar.shape[0]
+        
 
-        for i in range(count):
-            phi = 2.0*numpy.pi*i*1.0/count + 1.5*numpy.pi
-            
-            if lidar[i] > 0.0:
-                distance = lidar[i]*radius
+        for j in range(items_types):
+            phi = 2.0*numpy.pi*j/items_types
+            r = int(128*(1 + numpy.sin(phi + 0.0*numpy.pi/3)))
+            g = int(128*(1 + numpy.sin(phi + 1.0*numpy.pi/3)))
+            b = int(128*(1 + numpy.sin(phi + 2.0*numpy.pi/3)))
 
-                x = center + distance*numpy.cos(phi)
-                y = center + distance*numpy.sin(phi)
+            for i in range(lidar.shape[1]):
+                count = lidar.shape[1]
+                phi = 2.0*numpy.pi*i*1.0/count + 1.5*numpy.pi
+                
+                if lidar[j][i] > 0.0:
+                    distance = lidar[j][i]*radius
 
-                self._draw_circle(draw, int(x), int(y), radius*1.0/count + 2, color=(100, 10, 10))
+                    x = center + distance*numpy.cos(phi)
+                    y = center + distance*numpy.sin(phi)
+
+                    self._draw_circle(draw, int(x), int(y), radius*1.0/count + 2, color=(r, g, b))
 
         
         rgb = cv2.cvtColor(numpy.array(image),cv2.COLOR_BGR2RGB)
