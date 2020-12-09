@@ -1,7 +1,7 @@
 from gym.envs.registration import register
 
 register(
-    id='TargetnNavigate-v0',
+    id='TargetNavigate-v0',
     entry_point='gym_aeris.envs:TargetNavigateEnv'
 )
 

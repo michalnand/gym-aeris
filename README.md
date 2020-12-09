@@ -25,7 +25,7 @@ pip3 install -e .
 import gym
 import gym_aeris
 
-env = gym.make("TargetnNavigate-v0", render = True)
+env = gym.make("TargetNavigate-v0", render = True)
 state_initial = env.reset()
 
 state, reward, done, _ = env.step([0, 0])
@@ -40,7 +40,7 @@ TODO installing into gym
 ## navigate to target
 
 ```python
-env = gym.make("TargetnNavigate-v0", render = True)
+env = gym.make("TargetNavigate-v0", render = True)
 ```
 
 robot have to navigate to target
