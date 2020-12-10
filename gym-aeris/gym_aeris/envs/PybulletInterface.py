@@ -137,6 +137,8 @@ class PybulletInterface():
 
         self.steps+=1
 
+        #self.render_lidar(self.lidar)
+
 
     
     '''

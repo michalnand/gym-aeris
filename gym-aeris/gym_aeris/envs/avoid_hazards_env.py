@@ -43,11 +43,12 @@ class AvoidHazardsEnv(gym.Env, PybulletInterface):
         elif self.out_board(0):
             reward = -1.0
             done   = True
-        elif self.steps > 2000:
+        elif self.steps > 1000:
             reward = -1.0
             done   = True
 
-        self.pb_client.stepSimulation()
+        for i in range(4):
+            self.pb_client.stepSimulation()
 
         return self._update_observation(robot_id=0, lidar_points=self.lidar_points), reward, done, None
 

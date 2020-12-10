@@ -47,7 +47,8 @@ class TargetNavigateEnv(gym.Env, PybulletInterface):
             reward = -1.0
             done   = True
 
-        self.pb_client.stepSimulation()
+        for i in range(4):
+            self.pb_client.stepSimulation()
 
         #self.render_lidar(numpy.array([self.lidar[3], self.lidar[1]]))
 
