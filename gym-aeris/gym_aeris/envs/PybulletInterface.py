@@ -90,7 +90,7 @@ class PybulletInterface():
             yaw = numpy.random.rand()*2.0*numpy.pi
             orientation = self.pb_client.getQuaternionFromEuler([0, 0, yaw])
             
-            self.obstacles.append(self.pb_client.loadURDF(self.path_data + "obstacle.urdf", [x, y, 0.0], orientation))
+            self.obstacles.append(self.pb_client.loadURDF(self.path_data + "obstacle.urdf", [x, y, 0.501], orientation))
 
             idx+= 1
 
@@ -156,7 +156,7 @@ class PybulletInterface():
         dif      = numpy.array(target_position) - numpy.array(robot_position)
         distance = (numpy.sum(dif**2))**0.5
 
-        if distance < 0.08:
+        if distance < 0.09:
             return True
         return False
 
@@ -326,15 +326,16 @@ class PybulletInterface():
         robot_position = numpy.array(robot_position)
         items_r, items_yaw = self._get_scan_lines(robot_position, bb)
 
-        items_yaw = items_yaw - robot_angle[2]
-
         '''
         if self.steps%150 == 0:
             self._draw_scan_lines(robot_position, items_r, items_yaw)
         '''
 
+        items_yaw = items_yaw - robot_angle[2]
+        items_yaw = self._map_angle(items_yaw)
+
         distance = numpy.tanh(items_r)
-        idx      = numpy.floor(self.lidar_points*items_yaw/numpy.pi).astype(int)%self.lidar_points
+        idx      = numpy.floor(self.lidar_points*items_yaw/(2.0*numpy.pi)).astype(int)%self.lidar_points
 
         result   = 10*numpy.ones(self.lidar_points)
         for i in range(len(items_r)):
@@ -343,23 +344,7 @@ class PybulletInterface():
         result[result > 9] = 0.0
 
         return result
-       
-        '''
-        items_r, items_yaw = self.get_items_relative_position(robot, items)
-
-        distance = numpy.tanh(items_r)
-        idx      = numpy.floor(self.lidar_points*items_yaw/(2.0*numpy.pi)).astype(int)%self.lidar_points
-
-        result   = 10*numpy.ones(self.lidar_points)
-        for i in range(len(items)):
-            result[idx[i]] = min(distance[i], result[idx[i]])
-
-        result[result > 9] = 0.0
-
-        return result
-        '''
    
-
     def _polar_position(self, position):
         position = numpy.array(position)
         
@@ -379,7 +364,7 @@ class PybulletInterface():
             position, _ = self.pb_client.getBasePositionAndOrientation(items[i])
             velocity    = self.pb_client.getBaseVelocity(items[i])
 
-            phi = 2.0*numpy.pi*(self.steps%64)/64.0
+            phi     = 2.0*numpy.pi*(self.steps%64)/64.0
             v       = 0.1
             alpha   = 1.0
 
@@ -388,7 +373,6 @@ class PybulletInterface():
 
             fx = alpha*(velocity[0][0] - vx)
             fy = alpha*(velocity[0][1] - vy)
-
 
             self.pb_client.applyExternalForce(objectUniqueId=items[i], linkIndex=-1, forceObj=[fx, fy, 0], posObj=position, flags=self.pb_client.WORLD_FRAME)
 
@@ -434,7 +418,7 @@ class PybulletInterface():
         yaw_interpolated    = yaw_interpolated.transpose().reshape(2*interpolation_steps*items_count)
 
 
-        return r_interpolated, yaw_interpolated
+        return r_interpolated, self._map_angle(yaw_interpolated)
 
     def _draw_scan_lines(self, origin, r, yaw, color = [1, 0, 0]):
         
@@ -469,9 +453,10 @@ class PybulletInterface():
 
             for i in range(lidar.shape[1]):
                 count = lidar.shape[1]
-                phi = 2.0*numpy.pi*i*1.0/count + 1.5*numpy.pi
                 
                 if lidar[j][i] > 0.0:
+                    phi = 2.0*numpy.pi*i*1.0/count - numpy.pi*0.5
+
                     distance = lidar[j][i]*radius
 
                     x = center + distance*numpy.cos(phi)
@@ -487,3 +472,6 @@ class PybulletInterface():
     
     def _draw_circle(self, draw, x, y, r, color):
         draw.ellipse((x - r, y - r, x + r, y + r), fill = color, outline =color)
+
+    def _map_angle(self, angle):
+        return (angle + 2 * numpy.pi) % (2 * numpy.pi)

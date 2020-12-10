@@ -33,7 +33,6 @@ class FoodGatheringAdvancedEnv(gym.Env, PybulletInterface):
 
         #self._dummy_follow()
 
-        
         reward  = 0.0
         done    = False
 
@@ -98,7 +97,6 @@ class FoodGatheringAdvancedEnv(gym.Env, PybulletInterface):
       
         #self.render_lidar(lidar)
 
- 
         return result
 
     def _dummy_follow(self):

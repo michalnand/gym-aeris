@@ -25,6 +25,9 @@ class TargetNavigateEnv(gym.Env, PybulletInterface):
     def step(self, action):
 
         self.step_interface()
+
+        action[0] = 0.1
+        action[1] = -0.1
         
         vl = 50.0*numpy.clip(action[0], -1.0, 1.0)
         vr = 50.0*numpy.clip(action[1], -1.0, 1.0)
@@ -45,6 +48,8 @@ class TargetNavigateEnv(gym.Env, PybulletInterface):
             done   = True
 
         self.pb_client.stepSimulation()
+
+        #self.render_lidar(numpy.array([self.lidar[3], self.lidar[1]]))
 
         return self._update_observation(robot_id=0, lidar_points=self.lidar_points), reward, done, None
 
@@ -95,38 +100,3 @@ class TargetNavigateEnv(gym.Env, PybulletInterface):
         else:
             self.robots[0].set_velocity(50.0, 50.0)
  
-
-    '''
-    def render_lidar(self, lidar, size = 256):
-        image = Image.new('RGB', (size, size))
-
-        radius  = (256//2) - 10
-        center  = size//2
-        draw    = ImageDraw.Draw(image)
-
-        self._draw_circle(draw, 0 + center, 0 + center, radius, color=(10, 10, 10))
-
-        count = len(lidar)
-
-        for i in range(count):
-            phi = 2.0*numpy.pi*i*1.0/count + 1.5*numpy.pi
-            
-            if lidar[i] > 0.0:
-                distance = lidar[i]*radius
-
-                x = center + distance*numpy.cos(phi)
-                y = center + distance*numpy.sin(phi)
-
-                self._draw_circle(draw, int(x), int(y), radius*1.0/count + 2, color=(100, 10, 10))
-
-        
-        rgb = cv2.cvtColor(numpy.array(image),cv2.COLOR_BGR2RGB)
-
-
-
-        cv2.imshow("cv window", rgb)  
-        cv2.waitKey(1)
-    
-    def _draw_circle(self, draw, x, y, r, color):
-        draw.ellipse((x - r, y - r, x + r, y + r), fill = color, outline =color)
-    '''

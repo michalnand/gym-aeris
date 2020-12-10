@@ -23,14 +23,12 @@ class FoodGatheringEnv(gym.Env, PybulletInterface):
 
         
     def step(self, action):
-
         self.step_interface()
         
         vl = 50.0*numpy.clip(action[0], -1.0, 1.0)
         vr = 50.0*numpy.clip(action[1], -1.0, 1.0)
 
         self.robots[0].set_velocity(vl, vr)
-        
         
         reward  = 0.0
         done    = False
@@ -54,8 +52,6 @@ class FoodGatheringEnv(gym.Env, PybulletInterface):
 
         return self._update_observation(robot_id=0, lidar_points=self.lidar_points), reward, done, None
 
-        
-    
     def reset(self):
         robots_count    = 1 
         targets_count   = 0
@@ -87,12 +83,10 @@ class FoodGatheringEnv(gym.Env, PybulletInterface):
         result[2] = lidar[3]        #obstacles lidar
         result[3] = lidar[6]        #food lidar
       
- 
         return result
 
     def _dummy_follow(self):
         items_r, items_yaw = self.get_items_relative_position(self.robots[0].pb_robot, self.foods)
-
 
         if numpy.abs(items_yaw[0]) > 0.3:
             if items_yaw[0] > 0.0:
