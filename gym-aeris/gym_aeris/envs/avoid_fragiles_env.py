@@ -32,7 +32,7 @@ class AvoidFragilesEnv(gym.Env, PybulletInterface):
         self.robots[0].set_velocity(vl, vr)
         
         distance = self.target_distance()
-        reward = 0.1*numpy.exp(-distance)
+        reward = 0.001*numpy.exp(-distance)
         
         done    = False
 
