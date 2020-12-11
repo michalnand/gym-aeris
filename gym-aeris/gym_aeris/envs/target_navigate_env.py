@@ -32,6 +32,8 @@ class TargetNavigateEnv(gym.Env, PybulletInterface):
         
         #self._dummy_follow()  
 
+        #self.render_lidar(self.lidar)
+
         distance = self.target_distance()
         reward = 0.001*numpy.exp(-distance)
         
@@ -93,9 +95,9 @@ class TargetNavigateEnv(gym.Env, PybulletInterface):
 
         target = obs[3]
 
-        target_idx = numpy.argmax(target)
+        target_idx = numpy.argmin(target)
 
-        if target_idx < self.lidar_points/2:
+        if target_idx >= self.lidar_points//2:
             self.robots[0].set_velocity(-5.0 + 3.0, 5.0 + 3.0)
         else:
             self.robots[0].set_velocity(5.0 + 3.0, -5.0 + 3.0)

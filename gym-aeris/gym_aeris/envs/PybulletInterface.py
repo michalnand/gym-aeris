@@ -154,7 +154,7 @@ class PybulletInterface():
     def on_target(self, robot_id, target_id):
         distance = self.target_distance(robot_id, target_id)
         
-        if distance < 0.09:
+        if distance < 0.15:
             return True
         return False
 
@@ -356,18 +356,17 @@ class PybulletInterface():
         if self.steps%150 == 0:
             self._draw_scan_lines(robot_position, items_r, items_yaw)
         '''
-
+        
         items_yaw = items_yaw - robot_angle[2]
         items_yaw = self._map_angle(items_yaw)
 
         distance = numpy.tanh(items_r)
-        idx      = numpy.floor(self.lidar_points*items_yaw/(2.0*numpy.pi)).astype(int)%self.lidar_points
+        idx      = (numpy.round(self.lidar_points*items_yaw/(2.0*numpy.pi)).astype(int) + self.lidar_points//2)%self.lidar_points
 
-        result   = 10*numpy.ones(self.lidar_points)
+        result   = numpy.ones(self.lidar_points)
         for i in range(len(items_r)):
             result[idx[i]] = min(distance[i], result[idx[i]])
 
-        result[result > 9] = 0.0
 
         return result
    
@@ -423,8 +422,8 @@ class PybulletInterface():
         r   = r.transpose()
         yaw = yaw.transpose()
 
-        r_interpolated   = numpy.zeros((r.shape[0]*interpolation_steps, r.shape[1]))
-        yaw_interpolated = numpy.zeros((yaw.shape[0]*interpolation_steps, yaw.shape[1]))
+        r_interpolated   = numpy.zeros((interpolation_steps, r.shape[1]))
+        yaw_interpolated = numpy.zeros((interpolation_steps, yaw.shape[1]))
 
       
         r_start = r[0]
@@ -439,10 +438,8 @@ class PybulletInterface():
             w = i/interpolation_steps
             yaw_interpolated[i] = (1.0 - w)*yaw_start + w*yaw_end
 
-
-        r_interpolated      = r_interpolated.transpose().reshape(2*interpolation_steps*items_count)
-        yaw_interpolated    = yaw_interpolated.transpose().reshape(2*interpolation_steps*items_count)
-
+        r_interpolated      = r_interpolated.transpose().reshape(interpolation_steps*items_count)
+        yaw_interpolated    = yaw_interpolated.transpose().reshape(interpolation_steps*items_count)
 
         return r_interpolated, self._map_angle(yaw_interpolated)
 
@@ -481,7 +478,7 @@ class PybulletInterface():
                 count = lidar.shape[1]
                 
                 if lidar[j][i] > 0.0:
-                    phi = 2.0*numpy.pi*i*1.0/count - numpy.pi*0.5
+                    phi = 2.0*numpy.pi*i*1.0/count - numpy.pi*0.5 + numpy.pi
 
                     distance = lidar[j][i]*radius
 
