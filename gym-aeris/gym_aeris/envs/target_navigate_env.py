@@ -23,16 +23,14 @@ class TargetNavigateEnv(gym.Env, PybulletInterface):
 
         
     def step(self, action):
-
         self.step_interface()
 
-        action[0] = 0.1
-        action[1] = -0.1
-        
         vl = 50.0*numpy.clip(action[0], -1.0, 1.0)
         vr = 50.0*numpy.clip(action[1], -1.0, 1.0)
 
         self.robots[0].set_velocity(vl, vr)
+        
+        #self._dummy_follow()
         
         reward  = 0.0
         done    = False
@@ -43,14 +41,12 @@ class TargetNavigateEnv(gym.Env, PybulletInterface):
         elif self.out_board(0):
             reward = -1.0
             done   = True
-        elif self.steps > 2000:
+        elif self.steps > 1000:
             reward = -1.0
             done   = True
 
         for i in range(4):
             self.pb_client.stepSimulation()
-
-        #self.render_lidar(numpy.array([self.lidar[3], self.lidar[1]]))
 
         return self._update_observation(robot_id=0, lidar_points=self.lidar_points), reward, done, None
 
@@ -90,14 +86,16 @@ class TargetNavigateEnv(gym.Env, PybulletInterface):
         return result
 
     def _dummy_follow(self):
-        items_r, items_yaw = self.get_items_relative_position(self.robots[0].pb_robot, self.targets)
 
+        obs = self._update_observation(robot_id=0, lidar_points=self.lidar_points)
 
-        if numpy.abs(items_yaw[0]) > 0.3:
-            if items_yaw[0] > 0.0:
-                self.robots[0].set_velocity(-5.0, 5.0)
-            else:
-                self.robots[0].set_velocity(5.0, -5.0)
+        target = obs[3]
+
+        target_idx = numpy.argmax(target)
+
+        if target_idx < self.lidar_points/2:
+            self.robots[0].set_velocity(-5.0 + 3.0, 5.0 + 3.0)
         else:
-            self.robots[0].set_velocity(50.0, 50.0)
- 
+            self.robots[0].set_velocity(5.0 + 3.0, -5.0 + 3.0)
+
+       
