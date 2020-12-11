@@ -41,7 +41,7 @@ class TargetNavigateEnv(gym.Env, PybulletInterface):
         elif self.out_board(0):
             reward = -1.0
             done   = True
-        elif self.steps > 1000:
+        elif self.steps >= 1000:
             reward = -1.0
             done   = True
 
