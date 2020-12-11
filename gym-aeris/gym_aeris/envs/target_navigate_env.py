@@ -31,8 +31,10 @@ class TargetNavigateEnv(gym.Env, PybulletInterface):
         self.robots[0].set_velocity(vl, vr)
         
         #self._dummy_follow()
+
+        distance = self.target_distance()
+        reward = 0.1*numpy.exp(-distance)
         
-        reward  = 0.0
         done    = False
 
         if self.on_target(0, 0):

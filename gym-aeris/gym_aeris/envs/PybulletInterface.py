@@ -152,15 +152,20 @@ class PybulletInterface():
 
 
     def on_target(self, robot_id, target_id):
+        distance = self.target_distance(robot_id, target_id)
+        
+        if distance < 0.09:
+            return True
+        return False
+
+    def target_distance(self, robot_id = 0, target_id = 0):
         robot_position, robot_angle   = self.robots[robot_id].get_position_and_orientation()
         target_position, target_angle = self.pb_client.getBasePositionAndOrientation(self.targets[target_id])
 
         dif      = numpy.array(target_position) - numpy.array(robot_position)
         distance = (numpy.sum(dif**2))**0.5
 
-        if distance < 0.09:
-            return True
-        return False
+        return distance
 
 
     def on_fragile(self, robot_id):
@@ -205,6 +210,25 @@ class PybulletInterface():
                 return i
 
         return -1
+
+
+    def closest_food_distance(self, robot_id = 0):
+        min_distance = 1000
+        robot_position, robot_angle   = self.robots[robot_id].get_position_and_orientation()
+
+        for i in range(len(self.foods)):
+            target_position, target_angle = self.pb_client.getBasePositionAndOrientation(self.foods[i])
+
+            dif      = numpy.array(target_position) - numpy.array(robot_position)
+            distance = (numpy.sum(dif**2))**0.5
+
+            if distance < min_distance:
+                min_distance = distance
+
+
+        return min_distance
+
+  
 
     def out_board(self, robot_id):
         robot_position, _   = self.robots[robot_id].get_position_and_orientation()

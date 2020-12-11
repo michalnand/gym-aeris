@@ -33,6 +33,9 @@ class FoodGatheringAdvancedEnv(gym.Env, PybulletInterface):
 
         #self._dummy_follow()
 
+        distance = self.closest_food_distance()
+        reward = 0.1*numpy.exp(-distance)
+       
         reward  = 0.0
         done    = False
 
