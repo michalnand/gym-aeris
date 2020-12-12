@@ -15,7 +15,7 @@ class AvoidHazardsEnv(gym.Env, PybulletInterface):
     def __init__(self, render = False):
         gym.Env.__init__(self)
 
-        self.lidar_points = 32
+        self.lidar_points = 64
         PybulletInterface.__init__(self, render = render, lidar_points = self.lidar_points)
 
         self.action_space       = spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=numpy.float32)
