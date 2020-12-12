@@ -137,8 +137,6 @@ class PybulletInterface():
 
         self.steps+=1
 
-        #self.render_lidar(self.lidar)
-
 
     
     '''
@@ -154,7 +152,7 @@ class PybulletInterface():
     def on_target(self, robot_id, target_id):
         distance = self.target_distance(robot_id, target_id)
         
-        if distance < 0.15:
+        if distance < 0.18:
             return True
         return False
 
@@ -356,16 +354,18 @@ class PybulletInterface():
         if self.steps%150 == 0:
             self._draw_scan_lines(robot_position, items_r, items_yaw)
         '''
-        
+
         items_yaw = items_yaw - robot_angle[2]
         items_yaw = self._map_angle(items_yaw)
 
         distance = numpy.tanh(items_r)
         idx      = (numpy.round(self.lidar_points*items_yaw/(2.0*numpy.pi)).astype(int) + self.lidar_points//2)%self.lidar_points
 
-        result   = numpy.ones(self.lidar_points)
+        result   = 10*numpy.ones(self.lidar_points)
         for i in range(len(items_r)):
             result[idx[i]] = min(distance[i], result[idx[i]])
+
+        result[result > 9.9] = 0.0
 
 
         return result
@@ -402,7 +402,7 @@ class PybulletInterface():
             self.pb_client.applyExternalForce(objectUniqueId=items[i], linkIndex=-1, forceObj=[fx, fy, 0], posObj=position, flags=self.pb_client.WORLD_FRAME)
 
 
-    def _get_scan_lines(self, center_position, bounding_boxes, interpolation_steps = 10):
+    def _get_scan_lines(self, center_position, bounding_boxes, interpolation_steps = 8):
         items_count         = bounding_boxes.shape[0]
         center              = center_position.reshape(1, 1, 3).repeat(2, axis=1).repeat(items_count, axis=0)
         relative_position   = bounding_boxes - center_position
@@ -420,24 +420,24 @@ class PybulletInterface():
         yaw   = yaw.reshape(items_count, 2)
 
         r   = r.transpose()
-        yaw = yaw.transpose()
+        yaw = self._map_angle(yaw.transpose())
 
         r_interpolated   = numpy.zeros((interpolation_steps, r.shape[1]))
         yaw_interpolated = numpy.zeros((interpolation_steps, yaw.shape[1]))
 
-      
+        
         r_start = r[0]
         r_end   = r[1]
+
+        yaw_start = yaw[0] + 100
+        yaw_end   = yaw[1] + 100
+
         for i in range(interpolation_steps):
-            w = i/interpolation_steps
+            w = i/(interpolation_steps - 1)
             r_interpolated[i] = (1.0 - w)*r_start + w*r_end
+            yaw_interpolated[i] = (1.0 - w)*yaw_start + w*yaw_end - 100
 
-        yaw_start = yaw[0]
-        yaw_end   = yaw[1]
-        for i in range(interpolation_steps):
-            w = i/interpolation_steps
-            yaw_interpolated[i] = (1.0 - w)*yaw_start + w*yaw_end
-
+       
         r_interpolated      = r_interpolated.transpose().reshape(interpolation_steps*items_count)
         yaw_interpolated    = yaw_interpolated.transpose().reshape(interpolation_steps*items_count)
 
@@ -478,11 +478,11 @@ class PybulletInterface():
                 count = lidar.shape[1]
                 
                 if lidar[j][i] > 0.0:
-                    phi = 2.0*numpy.pi*i*1.0/count - numpy.pi*0.5 + numpy.pi
+                    phi = 2.0*numpy.pi*i*1.0/count + numpy.pi*0.5 # - numpy.pi*0.5 + numpy.pi
 
                     distance = lidar[j][i]*radius
 
-                    x = center + distance*numpy.cos(phi)
+                    x = center - distance*numpy.cos(phi)
                     y = center + distance*numpy.sin(phi)
 
                     self._draw_circle(draw, int(x), int(y), radius*1.0/count + 2, color=(r, g, b))
