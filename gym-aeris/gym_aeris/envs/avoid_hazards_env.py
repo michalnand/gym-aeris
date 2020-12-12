@@ -36,16 +36,16 @@ class AvoidHazardsEnv(gym.Env, PybulletInterface):
         
         done    = False
 
-        if self.on_target(0, 0):
+        if self.steps >= 1000:
+            reward = -1.0
+            done   = True
+        elif self.on_target(0, 0):
             reward = 1.0
             done   = True 
         elif self.on_hazard(0):
             reward = -1.0
             done   = True
         elif self.out_board(0):
-            reward = -1.0
-            done   = True
-        elif self.steps >= 1000:
             reward = -1.0
             done   = True
 

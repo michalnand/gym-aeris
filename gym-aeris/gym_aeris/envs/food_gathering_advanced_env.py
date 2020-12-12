@@ -23,7 +23,6 @@ class FoodGatheringAdvancedEnv(gym.Env, PybulletInterface):
 
         
     def step(self, action):
-
         self.step_interface()
     
         vl = 50.0*numpy.clip(action[0], -1.0, 1.0)
@@ -40,7 +39,10 @@ class FoodGatheringAdvancedEnv(gym.Env, PybulletInterface):
 
         food_id = self.on_food(0)
 
-        if food_id != -1:
+        if self.steps >= 1000:
+            reward = -1.0
+            done   = True
+        elif food_id != -1:
             reward = 1.0
             self.pb_client.removeBody(self.foods[food_id])
             del self.foods[food_id]
@@ -52,9 +54,6 @@ class FoodGatheringAdvancedEnv(gym.Env, PybulletInterface):
             reward = -1.0
             done   = True
         elif self.out_board(0):
-            reward = -1.0
-            done   = True
-        elif self.steps >= 1000:
             reward = -1.0
             done   = True
 
@@ -70,7 +69,7 @@ class FoodGatheringAdvancedEnv(gym.Env, PybulletInterface):
         targets_count   = 0
         hazards_count   = 4
         obstacles_count = 1
-        fragile_count   = 8
+        fragile_count   = 4
         moving_count    = 0
         foods_count     = 10
         

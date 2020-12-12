@@ -37,6 +37,9 @@ class FoodGatheringEnv(gym.Env, PybulletInterface):
 
         food_id = self.on_food(0)
 
+        if self.steps >= 1000:
+            reward = -1.0
+            done   = True
         if food_id != -1:
             reward = 1.0
             self.pb_client.removeBody(self.foods[food_id])
@@ -44,9 +47,6 @@ class FoodGatheringEnv(gym.Env, PybulletInterface):
             if len(self.foods) == 0:
                 done = True
         elif self.out_board(0):
-            reward = -1.0
-            done   = True
-        elif self.steps >= 1000:
             reward = -1.0
             done   = True
 
