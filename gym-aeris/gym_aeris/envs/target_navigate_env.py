@@ -37,7 +37,7 @@ class TargetNavigateEnv(gym.Env, PybulletInterface):
         '''
 
         distance = self.target_distance()
-        reward = 0.01*numpy.exp(-distance)
+        reward = 0.001*numpy.exp(-distance)
         
         done    = False
 
