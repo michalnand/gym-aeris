@@ -59,8 +59,8 @@ class AvoidHazardsEnv(gym.Env, PybulletInterface):
     def reset(self):
         robots_count    = 1 
         targets_count   = 1
-        hazards_count   = 8
-        obstacles_count = 1
+        hazards_count   = 5
+        obstacles_count = 2
         fragile_count   = 0
         moving_count    = 0
         foods_count     = 0
@@ -85,8 +85,9 @@ class AvoidHazardsEnv(gym.Env, PybulletInterface):
         result[0] = numpy.tanh(vl*numpy.ones(lidar_points)/50.0) #robot velocity, squeezed by tanh
         result[1] = numpy.tanh(vr*numpy.ones(lidar_points)/50.0)
         result[2] = lidar[3]        #obstacles lidar
-        result[3] = lidar[1]        #target lidar
-        result[4] = lidar[2]        #hazards lidar
+        result[3] = lidar[2]        #hazards lidar
+        result[4] = lidar[1]        #target lidar
+
 
         return result
 
