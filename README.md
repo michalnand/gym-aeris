@@ -45,15 +45,16 @@ env = gym.make("TargetNavigate-v0", render = True)
 
 robot have to navigate to target
 
-- for reaching target reward +1 obtained
-- for falling down, reward -1
+- for reaching target reward +1 obtained, episode ends
+- for falling down, reward -1, episode ends
+- after 1000 steps episode ends with reward -1
 
 observation :
-tensor with shape (4, 32)
+tensor with shape (4, 64)
 - channel 0 : left robot wheel velocity
 - channel 1 : right robot wheel velocity
-- channel 2 : 32 points lidar data of obstacles position
-- channel 3 : 32 points lidar data of target position
+- channel 2 : 64 points lidar data of obstacles position
+- channel 3 : 64 points lidar data of target position
 
 actions : continuous two motors controll, (-1, 1)
 
@@ -68,17 +69,18 @@ env = gym.make("AvoidHazards-v0", render = True)
 
 
 robot have to navigate to target, and avoid hazard areas
-- for reaching target reward +1 obtained
+- for reaching target reward +1 obtained, episode ends
 - for falling down, reward -1, episode ends
 - for hitting hazard, reward -1, episode ends
+- after 1000 steps episode ends with reward -1
 
 observation :
-tensor with shape (5, 32)
+tensor with shape (5, 64)
 - channel 0 : left robot wheel velocity
 - channel 1 : right robot wheel velocity
-- channel 2 : 32 points lidar data of obstacles position
-- channel 3 : 32 points lidar data of target position
-- channel 4 : 32 points lidar data of hazards position
+- channel 2 : 64 points lidar data of obstacles position
+- channel 3 : 64 points lidar data of hazards position
+- channel 4 : 64 points lidar data of target position
 
 actions : continuous two motors controll, (-1, 1)
 
@@ -94,19 +96,20 @@ env = gym.make("AvoidFragiles-v0", render = True)
 
 
 robot have to navigate to target, and avoid hazard areas, and be careful to fragile objects
-- for reaching target reward +1 obtained
+- for reaching target reward +1 obtained, episode ends
 - for falling down, reward -1, episode ends
 - for hitting hazard, reward -1, episode ends
 - for contact fragile, reward -0.1
+- after 1000 steps episode ends with reward -1
 
 observation :
-tensor with shape (6, 32)
+tensor with shape (6, 64)
 - channel 0 : left robot wheel velocity
 - channel 1 : right robot wheel velocity
-- channel 2 : 32 points lidar data of obstacles position
-- channel 3 : 32 points lidar data of target position
-- channel 4 : 32 points lidar data of hazards position
-- channel 5 : 32 points lidar data of fragiles position
+- channel 2 : 64 points lidar data of obstacles position
+- channel 3 : 64 points lidar data of hazards position
+- channel 4 : 64 points lidar data of fragiles position
+- channel 5 : 64 points lidar data of target position
 
 actions : continuous two motors controll, (-1, 1)
 
@@ -121,13 +124,14 @@ env = gym.make("FoodGathering-v0", render = True)
 robot have to gather foods, and avoid hazard areas, and be careful to fragile objects
 - for reaching food reward +1 obtained
 - for falling down, reward -1, episode ends
+- after 1000 steps episode ends with reward -1
 
 observation :
-tensor with shape (6, 32)
+tensor with shape (6, 64)
 - channel 0 : left robot wheel velocity
 - channel 1 : right robot wheel velocity
-- channel 2 : 32 points lidar data of obstacles position
-- channel 3 : 32 points lidar data of food position
+- channel 2 : 64 points lidar data of obstacles position
+- channel 3 : 64 points lidar data of food position
 
 actions : continuous two motors controll, (-1, 1)
 
@@ -139,19 +143,20 @@ env = gym.make("FoodGatheringAdvanced-v0", render = True)
 ```
 
 robot have to gather foods, and avoid hazard areas, and be careful to fragile objects
-- for reaching food reward +1 obtained
+- for reaching food reward +1 obtained, when all foods waten, episode ends
 - for falling down, reward -1, episode ends
 - for hitting hazard, reward -1, episode ends
 - for contact fragile, reward -0.1
+- after 1000 steps episode ends with reward -1
 
 observation :
-tensor with shape (6, 32)
+tensor with shape (6, 64)
 - channel 0 : left robot wheel velocity
 - channel 1 : right robot wheel velocity
-- channel 2 : 32 points lidar data of obstacles position
-- channel 3 : 32 points lidar data of hazards position
-- channel 4 : 32 points lidar data of fragiles position
-- channel 5 : 32 points lidar data of food position
+- channel 2 : 64 points lidar data of obstacles position
+- channel 3 : 64 points lidar data of hazards position
+- channel 4 : 64 points lidar data of fragiles position
+- channel 5 : 64 points lidar data of food position
 
 actions : continuous two motors controll, (-1, 1)
 
