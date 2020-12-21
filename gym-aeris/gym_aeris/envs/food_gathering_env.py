@@ -31,7 +31,7 @@ class FoodGatheringEnv(gym.Env, PybulletInterface):
         self.robots[0].set_velocity(vl, vr)
         
         distance = self.closest_food_distance()
-        reward = 0.001*numpy.exp(-distance)
+        reward = 0.0 #0.001*numpy.exp(-distance)
         
         done    = False
 
