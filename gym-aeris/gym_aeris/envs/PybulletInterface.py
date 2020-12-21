@@ -13,13 +13,14 @@ import cv2
 from PIL import Image, ImageDraw
 
 class PybulletInterface():
-    def __init__(self, render = True, lidar_points = 32):
+    def __init__(self, render = True, lidar_points = 32, world_size = 0, view_camera_distance = 1.5, view_camera_angle = -50.0):
         self.render         = render
         self.lidar_points   = lidar_points
         
-        self.pb_client  = PybulletClient(self.render)
+        self.pb_client  = PybulletClient(self.render, view_camera_distance, view_camera_angle)
         self.path = os.path.dirname(os.path.abspath(__file__))
         self.path_data = self.path + "/../data/"
+        self.world_size = world_size
 
         
         #self.texture_background = self.pb_client.loadTexture(self.path_data + "background2.png")
@@ -33,8 +34,12 @@ class PybulletInterface():
         self.pb_client.setTimeStep(1.0/100.0)
         self.pb_client.setGravity(0, 0, -9.81)
 
-        self.size           = 0.8
-        self.plane          = self.pb_client.loadURDF(self.path_data + "base.urdf")
+        if self.world_size == 0:
+            self.board_size     = 1.0
+            self.plane          = self.pb_client.loadURDF(self.path_data + "base_2.urdf")
+        else:
+            self.board_size     = 10.0
+            self.plane          = self.pb_client.loadURDF(self.path_data + "base_20.urdf")
 
         self.robots     = []
         self.targets    = []
@@ -46,8 +51,9 @@ class PybulletInterface():
 
         self.robots_controll = []
 
-        self.positions = self.random_positions(targets_count + robots_count + hazards_count + obstacles_count + fragiles_count + movings_count + foods_count)
-
+        total_count = targets_count + robots_count + hazards_count + obstacles_count + fragiles_count + movings_count + foods_count
+        self.positions = self.random_positions(total_count)
+        
 
         idx = 0
 
@@ -62,7 +68,6 @@ class PybulletInterface():
 
             idx+= 1
           
-
         for i in range(targets_count):
             x = self.positions[idx][0]
             y = self.positions[idx][1]
@@ -72,7 +77,6 @@ class PybulletInterface():
             self.targets.append(self.pb_client.loadURDF(self.path_data + "target.urdf", [x, y, 0.06], orientation))
             
             idx+= 1
-
      
         for i in range(hazards_count):
             x = self.positions[idx][0]
@@ -137,8 +141,6 @@ class PybulletInterface():
 
         self.steps+=1
 
-
-    
     '''
     def render_interface(self, mode='human'):
         image = self.pb_client.get_image(0*180.0/numpy.pi - 90, -90.0, 0.0, 0.25, 0, 0, 0, 640, 480)
@@ -147,7 +149,6 @@ class PybulletInterface():
         cv2.imshow("visualisation", rgb)  
         cv2.waitKey(1)
     '''
-
 
     def on_target(self, robot_id, target_id):
         distance = self.target_distance(robot_id, target_id)
@@ -165,7 +166,6 @@ class PybulletInterface():
 
         return distance
 
-
     def on_fragile(self, robot_id):
         robot_position, robot_angle   = self.robots[robot_id].get_position_and_orientation()
 
@@ -179,7 +179,6 @@ class PybulletInterface():
                 return True
 
         return False
-
 
     def on_hazard(self, robot_id):
         robot_position, robot_angle   = self.robots[robot_id].get_position_and_orientation()
@@ -209,7 +208,6 @@ class PybulletInterface():
 
         return -1
 
-
     def closest_food_distance(self, robot_id = 0):
         min_distance = 1000
         robot_position, robot_angle   = self.robots[robot_id].get_position_and_orientation()
@@ -223,22 +221,18 @@ class PybulletInterface():
             if distance < min_distance:
                 min_distance = distance
 
-
         return min_distance
-
-  
 
     def out_board(self, robot_id):
         robot_position, _   = self.robots[robot_id].get_position_and_orientation()
 
-        if numpy.abs(robot_position[0]) > 1.0:
+        if numpy.abs(robot_position[0]) > self.board_size:
             return True
 
-        if numpy.abs(robot_position[1]) > 1.0:
+        if numpy.abs(robot_position[1]) > self.board_size:
             return True
 
         return False
-
 
     def random_positions(self, count):
         positions = []
@@ -248,14 +242,13 @@ class PybulletInterface():
 
         return numpy.array(positions)
         
-    
     def _random_position(self, restricted_positions):
-        y = self._rnd()
-        x = self._rnd()
-
+        y = self._rnd()*self._max_size()
+        x = self._rnd()*self._max_size()
+ 
         while self._is_restriced(y, x, restricted_positions) == False:
-            y = self._rnd()
-            x = self._rnd() 
+            y = self._rnd()*self._max_size()
+            x = self._rnd()*self._max_size()
 
         return [x, y]
 
@@ -268,16 +261,19 @@ class PybulletInterface():
             if d < eps:
                 return False
 
-        if numpy.abs(x) > 0.85:
+        if numpy.abs(x) > self._max_size():
             return False
 
-        if numpy.abs(y) > 0.85:
+        if numpy.abs(y) > self._max_size():
             return False
 
         return True
 
     def _rnd(self): 
         return (numpy.random.rand()*2 - 1.0)
+
+    def _max_size(self):
+        return self.board_size*0.8
 
 
     def get_lidar(self, robot_id):
@@ -305,7 +301,6 @@ class PybulletInterface():
 
         if len(self.foods) > 0:
             result[6]    = self._lidar_process(self.robots[robot_id].pb_robot, self.foods)
-
 
         return result
 

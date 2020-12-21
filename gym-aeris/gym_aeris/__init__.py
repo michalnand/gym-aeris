@@ -24,3 +24,8 @@ register(
     id='FoodGatheringAdvanced-v0',
     entry_point='gym_aeris.envs:FoodGatheringAdvancedEnv'
 )
+
+register(
+    id='FoodGatheringAdvancedMulti-v0',
+    entry_point='gym_aeris.envs:FoodGatheringAdvancedMultiEnv'
+)

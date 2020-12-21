@@ -6,7 +6,7 @@ import numpy
 
 class PybulletClient():
     """A wrapper for pybullet to manage different clients."""
-    def __init__(self, render = False):
+    def __init__(self, render = False, view_camera_distance = 1.5, view_camera_angle = -50.0):
         
         print("creating pybullet client")
 
@@ -17,8 +17,8 @@ class PybulletClient():
             
         self._client = pybullet.connect(connection_mode, options='--background_color_red=0.128 --background_color_green=0.12 --background_color_blue=0.2457')
 
-        self.__getattr__("resetDebugVisualizerCamera")(cameraDistance = 1.5, cameraYaw=0.0, cameraPitch=-50.0, cameraTargetPosition=[0, 0.0, 0])
-        #self.__getattr__("resetDebugVisualizerCamera")(cameraDistance = 1.2, cameraYaw=0.0, cameraPitch=-80.0, cameraTargetPosition=[0, 0.0, 0])
+        self.__getattr__("resetDebugVisualizerCamera")(cameraDistance = view_camera_distance, cameraYaw=0.0, cameraPitch=view_camera_angle, cameraTargetPosition=[0, 0.0, 0])
+        #self.__getattr__("resetDebugVisualizerCamera")(cameraDistance = 8.5, cameraYaw=0.0, cameraPitch=-89.9, cameraTargetPosition=[0, 0.0, 0])
         self.__getattr__("configureDebugVisualizer")(pybullet.COV_ENABLE_GUI,0)
         self.__getattr__("configureDebugVisualizer")(pybullet.COV_ENABLE_DEPTH_BUFFER_PREVIEW,1)
 

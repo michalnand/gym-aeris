@@ -19,7 +19,7 @@ class FoodGatheringEnv(gym.Env, PybulletInterface):
         PybulletInterface.__init__(self, render = render, lidar_points = self.lidar_points)
 
         self.action_space       = spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=numpy.float32)
-        self.observation_space  = spaces.Box(low=-1.0, high=1.0, shape=(3, self.lidar_points), dtype=numpy.float32)
+        self.observation_space  = spaces.Box(low=-1.0, high=1.0, shape=(4, self.lidar_points), dtype=numpy.float32)
 
         
     def step(self, action):
@@ -59,7 +59,7 @@ class FoodGatheringEnv(gym.Env, PybulletInterface):
         robots_count    = 1 
         targets_count   = 0
         hazards_count   = 0
-        obstacles_count = 1
+        obstacles_count = 3
         fragile_count   = 0
         moving_count    = 0
         foods_count     = 10
