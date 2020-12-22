@@ -3,20 +3,20 @@ from gym import error, spaces, utils
 from gym.utils import seeding
 
 from .PybulletClient import *
-from .PybulletInterface import *
+from .BasicInterface import *
 
 import numpy
 import os
 
 
-class AvoidHazardsEnv(gym.Env, PybulletInterface):
+class AvoidHazardsEnv(gym.Env, BasicInterface):
     metadata = {'render.modes': ['human']}
 
     def __init__(self, render = False):
         gym.Env.__init__(self)
 
         self.lidar_points = 64
-        PybulletInterface.__init__(self, render = render, lidar_points = self.lidar_points)
+        BasicInterface.__init__(self, render = render, lidar_points = self.lidar_points)
 
         self.action_space       = spaces.Box(low=-1.0, high=1.0, shape=(2,), dtype=numpy.float32)
         self.observation_space  = spaces.Box(low=-1.0, high=1.0, shape=(5, self.lidar_points), dtype=numpy.float32)

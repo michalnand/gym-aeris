@@ -9,7 +9,7 @@ import numpy
 import os
 
 
-class FoodGatheringAdvancedMultiEnv(gym.Env, BasicInterface):
+class FoodGatheringMultiEnv(gym.Env, BasicInterface):
     metadata = {'render.modes': ['human']}
 
     def __init__(self, render = False):
@@ -66,11 +66,11 @@ class FoodGatheringAdvancedMultiEnv(gym.Env, BasicInterface):
         
     
     def reset(self):
-        robots_count    = 1*self.robots_count
+        robots_count    = 1*self.robots_count 
         targets_count   = 0
-        hazards_count   = 4*self.robots_count//2
-        obstacles_count = 1*self.robots_count//2
-        fragile_count   = 4*self.robots_count//2
+        hazards_count   = 0
+        obstacles_count = 3*self.robots_count//2
+        fragile_count   = 0
         moving_count    = 0
         foods_count     = 10*self.robots_count//2
         

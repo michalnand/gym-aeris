@@ -12,7 +12,7 @@ import os
 import cv2
 from PIL import Image, ImageDraw
 
-class PybulletInterface():
+class BasicInterface():
     def __init__(self, render = True, lidar_points = 32, world_size = 0, view_camera_distance = 1.5, view_camera_angle = -50.0):
         self.render         = render
         self.lidar_points   = lidar_points
@@ -37,9 +37,9 @@ class PybulletInterface():
         if self.world_size == 0:
             self.board_size     = 1.0
             self.plane          = self.pb_client.loadURDF(self.path_data + "base_2.urdf")
-        else:
-            self.board_size     = 10.0
-            self.plane          = self.pb_client.loadURDF(self.path_data + "base_20.urdf")
+        elif self.world_size == 1:
+            self.board_size     = 2.0
+            self.plane          = self.pb_client.loadURDF(self.path_data + "base_4.urdf")
 
         self.robots     = []
         self.targets    = []
@@ -279,10 +279,11 @@ class PybulletInterface():
     def get_lidar(self, robot_id):
         result = numpy.zeros((7, self.lidar_points))
         
-        '''
         if len(self.robots) > 0:
-            result[0]     = self._lidar_process(self.robots[robot_id].pb_robot, self.robots)
-        '''
+            robots = []
+            for i in range(len(self.robots)):
+                robots.append(self.robots[i].pb_robot)
+            result[0]     = self._lidar_process(self.robots[robot_id].pb_robot, robots)
 
         if len(self.targets) > 0:
             result[1]    = self._lidar_process(self.robots[robot_id].pb_robot, self.targets)

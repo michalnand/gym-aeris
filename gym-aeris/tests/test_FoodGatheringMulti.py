@@ -7,7 +7,7 @@ import gym_aeris.envs
 from AgentRandom import *
 
 
-env = gym_aeris.envs.FoodGatheringAdvancedMultiEnv(render=True)
+env = gym_aeris.envs.FoodGatheringMultiEnv(render=True)
 env.reset()
 
 agent = AgentRandom(env)
