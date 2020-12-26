@@ -11,11 +11,14 @@ class AgentRandom:
 
     def main(self, verbose=False):
         self.iterations+= 1
-        action = 4.0*numpy.random.randn(self.actions_count)
 
+        action = 2.0*numpy.random.randn(self.actions_count)
         action = numpy.tanh(action)
 
         state, reward, done, info = self.env.step(action)
+
+        if reward != 0:
+            print("reward = ", reward)
 
         if verbose:
             print("action      = ", action)

@@ -21,16 +21,19 @@ register(
 ) 
 
 register(
-    id='FoodGatheringMulti-v0',
-    entry_point='gym_aeris.envs:FoodGatheringMultiEnv'
-)
-
-register(
     id='FoodGatheringAdvanced-v0',
     entry_point='gym_aeris.envs:FoodGatheringAdvancedEnv'
 )
 
+
+
+
 register(
-    id='FoodGatheringAdvancedMulti-v0',
-    entry_point='gym_aeris.envs:FoodGatheringAdvancedMultiEnv'
+    id='SwarmFoodGathering-v0',
+    entry_point='gym_aeris.envs:SwarmFoodGatheringEnv'
+)
+
+register(
+    id='SwarmCaptureTheFlag-v0',
+    entry_point='gym_aeris.envs:SwarmCaptureTheFlagEnv'
 )

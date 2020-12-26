@@ -12,7 +12,7 @@ import os
 import cv2
 from PIL import Image, ImageDraw
 
-class BasicInterface():
+class SwarmInterface():
     def __init__(self, render = True, lidar_points = 32, world_size = 0, view_camera_distance = 1.5, view_camera_angle = -50.0):
         self.render         = render
         self.lidar_points   = lidar_points
@@ -63,7 +63,7 @@ class BasicInterface():
             z   = 0.01
             yaw = numpy.random.rand()*2.0*numpy.pi
 
-            robot = RobotBasic(self.pb_client, self.path_data + "robot_blue.urdf", x, y, z, yaw)
+            robot = RobotBasic(self.pb_client, self.path_data + "kilobot.urdf", x, y, z, yaw)
             self.robots.append(robot)
 
             idx+= 1

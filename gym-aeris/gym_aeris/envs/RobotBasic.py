@@ -1,15 +1,16 @@
 
 
 class RobotBasic:
-    def __init__(self, pb_client, urdf_file, x, y, z, initial_angle):
+    def __init__(self, pb_client, urdf_file, x, y, z, initial_angle, left_wheel_joint = 1, right_wheel_joint = 2, inertia = 0.8, scale = 1.0):
 
         self.pb_client   = pb_client
 
         orientation      = self.pb_client.getQuaternionFromEuler([0, 0, initial_angle])
-        self.pb_robot    = self.pb_client.loadURDF(urdf_file, [x, y, z], orientation)
+        self.pb_robot    = self.pb_client.loadURDF(urdf_file, [x, y, z], orientation, globalScaling=scale)
 
-        self.left_wheel_joint   = 1
-        self.right_wheel_joint  = 2
+        self.left_wheel_joint   = left_wheel_joint
+        self.right_wheel_joint  = right_wheel_joint
+        self.inertia = inertia
 
 
     def get_position_and_orientation(self):
@@ -42,11 +43,11 @@ class RobotBasic:
         return x, y, z, pitch, roll, yaw
 
 
-    def set_throttle(self, left_power, right_power, inertia = 0.8):
+    def set_throttle(self, left_power, right_power):
         vl, vr = self.get_wheel_velocity()
 
-        vl  =  inertia*vl  + (1.0 - inertia)*left_power
-        vr  =  inertia*vr  + (1.0 - inertia)*right_power
+        vl  =  self.inertia*vl  + (1.0 - self.inertia)*left_power
+        vr  =  self.inertia*vr  + (1.0 - self.inertia)*right_power
 
         self.set_velocity(vl, vr)
    

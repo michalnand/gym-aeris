@@ -17,11 +17,15 @@ class PybulletClient():
             
         self._client = pybullet.connect(connection_mode, options='--background_color_red=0.128 --background_color_green=0.12 --background_color_blue=0.2457')
 
-        self.__getattr__("resetDebugVisualizerCamera")(cameraDistance = view_camera_distance, cameraYaw=0.0, cameraPitch=view_camera_angle, cameraTargetPosition=[0, 0.0, 0])
-        #self.__getattr__("resetDebugVisualizerCamera")(cameraDistance = 8.5, cameraYaw=0.0, cameraPitch=-89.9, cameraTargetPosition=[0, 0.0, 0])
-        self.__getattr__("configureDebugVisualizer")(pybullet.COV_ENABLE_GUI,0)
-        self.__getattr__("configureDebugVisualizer")(pybullet.COV_ENABLE_DEPTH_BUFFER_PREVIEW,1)
+        if render:
+            self.__getattr__("resetDebugVisualizerCamera")(cameraDistance = view_camera_distance, cameraYaw=0.0, cameraPitch=view_camera_angle, cameraTargetPosition=[0, 0.0, 0])
+            #self.__getattr__("resetDebugVisualizerCamera")(cameraDistance = 8.5, cameraYaw=0.0, cameraPitch=-89.9, cameraTargetPosition=[0, 0.0, 0])
+            self.__getattr__("configureDebugVisualizer")(pybullet.COV_ENABLE_GUI,0)
+            self.__getattr__("configureDebugVisualizer")(pybullet.COV_ENABLE_SEGMENTATION_MARK_PREVIEW,0)
+            self.__getattr__("configureDebugVisualizer")(pybullet.COV_ENABLE_DEPTH_BUFFER_PREVIEW,0)
+            self.__getattr__("configureDebugVisualizer")(pybullet.COV_ENABLE_RGB_BUFFER_PREVIEW,0)
 
+        
         self._shapes = {}
 
     def __del__(self):
