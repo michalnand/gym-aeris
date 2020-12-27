@@ -37,7 +37,7 @@ class TargetNavigateEnv(gym.Env, BasicInterface):
         '''
 
         distance = self.target_distance()
-        reward = 0.001*numpy.exp(-distance)
+        reward = 0.0 #0.001*numpy.exp(-distance)
         
         done    = False
 
