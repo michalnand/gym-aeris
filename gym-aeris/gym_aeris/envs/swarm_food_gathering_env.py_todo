@@ -11,10 +11,10 @@ import os
 
 class SwarmFoodGatheringEnv(gym.Env):
 
-    def __init__(self, render = False, robots_count = 8):
+    def __init__(self, render = False):
         gym.Env.__init__(self) 
 
-        self.robots_count           = robots_count
+        self.robots_count           = 32
         self.foods_count            = 8*self.robots_count
         self.fragiles_count         = 2*self.robots_count
 
@@ -24,8 +24,9 @@ class SwarmFoodGatheringEnv(gym.Env):
         view_camera_distance        = 1.05
         view_camera_angle           = -89.9
 
-        self.pb_client  = PybulletClient(render, view_camera_distance, view_camera_angle)
-        
+        #self.pb_client  = PybulletClient(render, view_camera_distance, view_camera_angle)
+        self.pb_clients = PybulletClientMulti(render, view_camera_distance, view_camera_angle)
+
         self.path       = os.path.dirname(os.path.abspath(__file__))
         self.path_data  = self.path + "/../data/"
 
@@ -37,13 +38,14 @@ class SwarmFoodGatheringEnv(gym.Env):
 
     def reset(self):
         self.steps = 0
-        self.pb_client.resetSimulation()
+        self.pb_clients.resetSimulation()
 
-        self.pb_client.setTimeStep(1.0/100.0)
-        self.pb_client.setGravity(0, 0, -9.81)
+        self.pb_clients.setTimeStep(1.0/100.0)
+        self.pb_clients.setGravity(0, 0, -9.81)
 
         self.board_size     = 1.0
-        self.plane          = self.pb_client.loadURDF(self.path_data + "base_2.urdf")
+        pb_client = self.pb_clients.get(0)
+        self.plane          = pb_client.loadURDF(self.path_data + "base_2.urdf")
 
         self.robots     = []
         self.foods      = []
@@ -57,9 +59,12 @@ class SwarmFoodGatheringEnv(gym.Env):
             x = positions[idx][0]
             y = positions[idx][1]
             yaw = numpy.random.rand()*2.0*numpy.pi
-            orientation = self.pb_client.getQuaternionFromEuler([0, 0, yaw])
-            
-            self.foods.append(self.pb_client.loadURDF(self.path_data + "food_small.urdf", [x, y, 0.02], orientation))
+
+
+            pb_client = self.pb_clients.get(i)
+
+            orientation = pb_client.getQuaternionFromEuler([0, 0, yaw])
+            self.foods.append(pb_client.loadURDF(self.path_data + "food_small.urdf", [x, y, 0.02], orientation))
 
             idx+= 1
 
@@ -68,7 +73,8 @@ class SwarmFoodGatheringEnv(gym.Env):
             y = positions[idx][1]
             yaw = numpy.random.rand()*2.0*numpy.pi
 
-            robot = RobotBasic(self.pb_client, self.path_data + "robot_blue.urdf", x, y, 0.02, yaw, 1, 2, scale=0.3)
+            pb_client = self.pb_clients.get(i)
+            robot = RobotBasic(pb_client, self.path_data + "robot_blue.urdf", x, y, 0.02, yaw, 1, 2, scale=0.3)
             self.robots.append(robot)
         
             idx+= 1
@@ -77,14 +83,16 @@ class SwarmFoodGatheringEnv(gym.Env):
             x = positions[idx][0]
             y = positions[idx][1]
             yaw = numpy.random.rand()*2.0*numpy.pi
-            orientation = self.pb_client.getQuaternionFromEuler([0, 0, yaw])
-            
-            self.fragiles.append(self.pb_client.loadURDF(self.path_data + "fragile_small.urdf", [x, y, 0.02], orientation))
+
+            pb_client = self.pb_clients.get(i)
+
+            orientation = pb_client.getQuaternionFromEuler([0, 0, yaw])
+            self.fragiles.append(pb_client.loadURDF(self.path_data + "fragile_small.urdf", [x, y, 0.02], orientation))
 
             idx+= 1
 
         for i in range(100):
-            self.pb_client.stepSimulation()
+            self.pb_clients.stepSimulation()
 
         self._update_distances()
 
@@ -112,7 +120,7 @@ class SwarmFoodGatheringEnv(gym.Env):
         self.internal_state = action_[:, 2:2+self.internal_state_size].copy()
         
         for i in range(4):
-            self.pb_client.stepSimulation()
+            self.pb_clients.stepSimulation()
 
         self._update_distances()
      
@@ -375,7 +383,8 @@ class SwarmFoodGatheringEnv(gym.Env):
         positions = numpy.zeros((1, foods_count), dtype=numpy.complex)
 
         for i in range(foods_count):
-            position, _ = self.pb_client.getBasePositionAndOrientation(self.foods[i])
+            pb_client = self.pb_clients.get(i)
+            position, _ = pb_client.getBasePositionAndOrientation(self.foods[i])
             
             positions[0][i] = position[0] + position[1]*1.0j
 
@@ -387,13 +396,16 @@ class SwarmFoodGatheringEnv(gym.Env):
         positions = numpy.zeros((1, fragiles_count), dtype=numpy.complex)
 
         for i in range(fragiles_count):
-            position, _ = self.pb_client.getBasePositionAndOrientation(self.fragiles[i])
+            pb_client = self.pb_clients.get(i)
+            position, _ = pb_client.getBasePositionAndOrientation(self.fragiles[i])
             
             positions[0][i] = position[0] + position[1]*1.0j
 
         return positions
 
     def _eat_food(self):
+        return 0, True
+
         eat_mask = self.robots_foods_distances < 0.04
         eat_mask = eat_mask.any(axis=0)
         
@@ -403,6 +415,7 @@ class SwarmFoodGatheringEnv(gym.Env):
             remove_indices = numpy.where(eat_mask == True)[0]
             
             for i in range(len(remove_indices)):
+                pb_client = self.pb_clients.get(i)
                 self.pb_client.removeBody(self.foods[remove_indices[i]])
             
             foods = []

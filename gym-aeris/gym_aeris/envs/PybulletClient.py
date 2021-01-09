@@ -3,6 +3,48 @@ import inspect
 import pybullet
 import numpy
 
+import multiprocessing
+
+
+class PybulletClientMulti():
+    def __init__(self, render = False, view_camera_distance = 1.5, view_camera_angle = -50.0, max_threads = 16):
+
+        count = multiprocessing.cpu_count()
+
+        if count > max_threads:
+            count = max_threads
+            
+        self.clients = []
+        self.clients.append(PybulletClient(render, view_camera_distance, view_camera_angle))
+
+        if count > 1:
+            for i in range(count-1):
+                self.clients.append(PybulletClient(False, view_camera_distance, view_camera_angle))
+
+    def get(self, idx):
+        idx = idx%len(self.clients)
+        return self.clients[idx]
+
+    def resetSimulation(self):
+        for i in range(len(self.clients)):
+            self.clients[i].resetSimulation()
+
+    def setTimeStep(self, dt):
+        for i in range(len(self.clients)):
+            self.clients[i].setTimeStep(dt)
+
+    def setGravity(self, fx, fy, fz):
+        for i in range(len(self.clients)):
+            self.clients[i].setGravity(fx, fy, fz)
+
+
+    def stepSimulation(self):
+        for i in range(len(self.clients)):
+            self.clients[i].stepSimulation()
+
+
+
+
 
 class PybulletClient():
     """A wrapper for pybullet to manage different clients."""
