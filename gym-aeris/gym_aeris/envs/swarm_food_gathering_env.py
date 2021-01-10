@@ -97,13 +97,13 @@ class SwarmFoodGatheringEnv(gym.Env):
         self.steps+= 1
 
         action_ = action.reshape((self.robots_count, 2 + self.internal_state_size))
-
+        
         for i in range(self.robots_count):
             vl = 50.0*numpy.clip(action_[i][0], -1.0, 1.0)
             vr = 50.0*numpy.clip(action_[i][1], -1.0, 1.0)
 
             self.robots[i].set_velocity(vl, vr)
-        
+
         '''
         for i in range(self.robots_count):
             self._dummy_follow(i)
@@ -116,7 +116,7 @@ class SwarmFoodGatheringEnv(gym.Env):
 
         self._update_distances()
      
-        reward = -0.01
+        reward = 0.0
         done   = False
 
         collected, food_present = self._eat_food()
@@ -229,7 +229,7 @@ class SwarmFoodGatheringEnv(gym.Env):
 
         foods_r_               = numpy.tanh(foods_r)
         foods_relative_angles_ = numpy.tanh( (foods_relative_angles - numpy.pi)/numpy.pi )
-        #foods_relative_angles_  = foods_relative_angles
+        #foods_relative_angles_  = 180.0*(foods_relative_angles - numpy.pi)/numpy.pi
 
         fragiles_r_               = numpy.tanh(fragiles_r)
         fragiles_relative_angles_ = numpy.tanh( (fragiles_relative_angles - numpy.pi)/numpy.pi )
@@ -440,9 +440,9 @@ class SwarmFoodGatheringEnv(gym.Env):
         if numpy.abs(yaw) > 0.2: 
             #if yaw < numpy.pi:
             if yaw < 0.0:
-                self.robots[robot_id].set_velocity(-8.0, 8.0)
+                self.robots[robot_id].set_velocity(-1.0, 8.0)
             else:
-                self.robots[robot_id].set_velocity(8.0, -8.0)
+                self.robots[robot_id].set_velocity(8.0, -1.0)
         else:
             self.robots[robot_id].set_velocity(50.0, 50.0)
         
