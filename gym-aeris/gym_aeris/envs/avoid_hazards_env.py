@@ -37,7 +37,7 @@ class AvoidHazardsEnv(gym.Env, BasicInterface):
         done    = False
 
         if self.steps >= 1000:
-            reward = -1.0
+            reward = 0.0
             done   = True
         elif self.on_target(0, 0):
             reward = 1.0

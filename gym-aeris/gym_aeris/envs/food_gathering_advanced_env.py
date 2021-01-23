@@ -40,7 +40,7 @@ class FoodGatheringAdvancedEnv(gym.Env, BasicInterface):
         food_id = self.on_food(0)
 
         if self.steps >= 1000:
-            reward = -1.0
+            reward = 0.0
             done   = True
         elif food_id != -1:
             reward = 1.0

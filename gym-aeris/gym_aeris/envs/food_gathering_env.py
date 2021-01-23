@@ -38,9 +38,9 @@ class FoodGatheringEnv(gym.Env, BasicInterface):
         food_id = self.on_food(0)
 
         if self.steps >= 1000:
-            reward = -1.0
+            reward = 0.0
             done   = True
-        if food_id != -1:
+        elif food_id != -1:
             reward = 1.0
             self.pb_client.removeBody(self.foods[food_id])
             del self.foods[food_id]
