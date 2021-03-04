@@ -7,5 +7,4 @@ from gym_aeris.envs.food_gathering_advanced_env             import FoodGathering
 
 
 from gym_aeris.envs.swarm_food_gathering_env                import SwarmFoodGatheringEnv
-from gym_aeris.envs.swarm_capture_the_flag_env              import SwarmCaptureTheFlagEnv
 

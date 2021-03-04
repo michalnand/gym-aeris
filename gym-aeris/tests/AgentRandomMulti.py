@@ -2,7 +2,7 @@ import numpy
 
 
 
-class AgentRandom:
+class AgentRandomMulti:
     def __init__(self, env):
         self.env            = env
         self.actions_count  = self.env.action_space.shape[0]
@@ -23,11 +23,13 @@ class AgentRandom:
             print("state shape = ", state.shape)
             print("reward      = ", reward)
             print("done        = ", done)
-            print("state = \n", state)
             print("\n\n\n")
         
-        if done:
-            state = self.env.reset()
+        for i in range(len(done)):
+            if done[i]:
+                self.env.reset(i)
+
+      
 
         return reward, done
     
