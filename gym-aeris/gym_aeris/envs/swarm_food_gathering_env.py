@@ -11,7 +11,7 @@ import cv2
 
 class SwarmFoodGatheringEnv(gym.Env):
 
-    def __init__(self, envs_count = 16, robots_count = 256, foods_count = 1024):
+    def __init__(self, envs_count = 16, robots_count = 128, foods_count = 512):
         gym.Env.__init__(self) 
         
         self.device       = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
