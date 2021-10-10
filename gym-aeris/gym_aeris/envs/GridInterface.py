@@ -37,7 +37,7 @@ class GridInterface:
 
         self.robots[robot_id].set_velocity(vl, vr)
 
-        for i in range(sim_steps):
+        for _ in range(sim_steps):
             self.pb_client.stepSimulation()
 
         self.steps+=1
@@ -45,7 +45,7 @@ class GridInterface:
     def make_grid(self, grid_map):
         height = len(grid_map)
         width  = len(grid_map[0])
-        scale = 1.7
+        scale  = 1.7
 
         self.robots         = []
         self.cubes          = []
@@ -67,7 +67,7 @@ class GridInterface:
    
     def put_item(self, item_id, y, x, height, width, scale):
         x_pos = scale*(x/height - 0.5)
-        y_pos = scale*(y/width - 0.5)
+        y_pos = scale*(y/width  - 0.5)
 
         yaw     = 0.0
         active  = 1.0
@@ -109,7 +109,7 @@ class GridInterface:
         observation[1] = observation[1] - y
         observation[2] = observation[2] - z
 
-        observation = numpy.clip(0.5*observation + 1.0, 0.0, 1.0)
+        #observation = numpy.clip(0.5*observation + 1.0, 0.0, 1.0)
         return observation
 
     def on_target(self, robot_id, target_id):
