@@ -17,7 +17,6 @@ class AgentRandom:
 
         state, reward, done, info = self.env.step(action)
 
-
         if verbose:
             print("action      = ", action)
             print("state shape = ", state.shape)

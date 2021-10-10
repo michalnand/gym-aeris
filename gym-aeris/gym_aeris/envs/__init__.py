@@ -8,3 +8,5 @@ from gym_aeris.envs.food_gathering_advanced_env             import FoodGathering
 
 from gym_aeris.envs.swarm_food_gathering_env                import SwarmFoodGatheringEnv
 
+from gym_aeris.envs.grid_target_search_a_env                import GridTargetSearchAEnv, GridTargetSearchADiscreteEnv
+from gym_aeris.envs.grid_target_search_b_env                import GridTargetSearchBEnv, GridTargetSearchBDiscreteEnv
