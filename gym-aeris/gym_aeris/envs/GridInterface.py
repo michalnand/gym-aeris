@@ -105,9 +105,9 @@ class GridInterface:
         x, y, z, _, _, _ = self.robots[robot_id].get_position()
 
         #relative position, to robot
-        observation[0] = observation[0] - x
-        observation[1] = observation[1] - y
-        observation[2] = observation[2] - z
+        observation[0] = self._norm_position(observation[0] - x)
+        observation[1] = self._norm_position(observation[1] - y)
+        observation[2] = self._norm_position(observation[2] - z)
 
         #observation = numpy.clip(0.5*observation + 1.0, 0.0, 1.0)
         return observation
@@ -136,5 +136,10 @@ class GridInterface:
             return True
 
         return False
+
+    def _norm_position(self, x):
+        maximal = numpy.max(numpy.abs(x)) + 0.0000001
+        return numpy.clip(0.5*(x/maximal + 1.0), 0.0, 1.0)
+
 
 
