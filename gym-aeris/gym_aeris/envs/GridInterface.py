@@ -109,7 +109,6 @@ class GridInterface:
         observation[1] = self._norm_position(observation[1] - y)
         observation[2] = self._norm_position(observation[2] - z)
 
-        #observation = numpy.clip(0.5*observation + 1.0, 0.0, 1.0)
         return observation
 
     def on_target(self, robot_id, target_id):
@@ -138,8 +137,7 @@ class GridInterface:
         return False
 
     def _norm_position(self, x):
-        maximal = numpy.max(numpy.abs(x)) + 0.0000001
-        return numpy.clip(0.5*(x/maximal + 1.0), 0.0, 1.0)
+        return 0.5*(numpy.tanh(x/2.0) + 1.0)
 
 
 
